@@ -63,72 +63,7 @@ npx expo install expo-document-picker
 
 2.  **Set Up the Supabase for auth & user management Table**:
 
-    - Run the following SQL script in your Supabase SQL editor :
-
-           ```sql
-
-            CREATE TABLE users (
-            id UUID REFERENCES auth.users ON DELETE CASCADE,
-            username TEXT UNIQUE NOT NULL,
-            fullname TEXT,
-            email TEXT UNIQUE NOT NULL,
-            profile_pic TEXT,
-            date_of_birth DATE,
-            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-            updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-            PRIMARY KEY (id)
-            );
-
-      ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-
-      CREATE POLICY "Users can manage their own data" ON users
-      FOR ALL
-      USING (auth.uid() = id)
-      WITH CHECK (auth.uid() = id);
-
-      INSERT INTO storage.buckets (id, name, public)
-      VALUES ('profile_pics', 'profile_pics', true);
-
-      CREATE POLICY "Allow all uploads to profile_pics" ON storage.objects
-      FOR INSERT
-      TO public
-      WITH CHECK (bucket_id = 'profile_pics');
-
-      CREATE POLICY "Allow all reads from profile_pics" ON storage.objects
-      FOR SELECT
-      TO public
-      USING (bucket_id = 'profile_pics');
-
-      CREATE OR REPLACE FUNCTION public.handle_new_user()
-      RETURNS TRIGGER AS $$
-      DECLARE
-      username TEXT;
-      BEGIN
-      username := split_part(NEW.email, '@', 1);
-
-      INSERT INTO public.users (id, email, username)
-      VALUES (NEW.id, NEW.email, username);
-
-      RETURN NEW;
-      END;
-
-      $$
-      LANGUAGE plpgsql SECURITY DEFINER;
-
-        CREATE OR REPLACE TRIGGER on_auth_user_created
-      AFTER INSERT ON auth.users
-      FOR EACH ROW
-      EXECUTE FUNCTION public.handle_new_user();
-
-        ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-
-        ALTER PUBLICATION supabase_realtime
-      ADD TABLE users;
-      $$
-
-    ```
-
-    ```
+    - Execute the SQL script provided in `supabase/schema.sql` within your Supabase SQL editor.
 
 3.  **Update Environment Variables**:
 
