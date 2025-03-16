@@ -1,10 +1,18 @@
 import { useState } from "react";
-import { TextInput, Alert, Pressable, View, StyleSheet } from "react-native";
+import {
+  TextInput,
+  Alert,
+  Pressable,
+  View,
+  StyleSheet,
+  Platform,
+} from "react-native";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { supabase } from "@/lib/supabase";
 import { PoppinsBoldText, PoppinsText } from "@/components/StyledText";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
+import { ToastAndroid } from "react-native";
 
 export default function OTPVerification() {
   const params = useLocalSearchParams();
@@ -15,7 +23,11 @@ export default function OTPVerification() {
 
   const handleVerifyOTP = async () => {
     if (!email) {
-      Alert.alert("Error", "Email is required.");
+      if (Platform.OS === "android") {
+        ToastAndroid.show("Email is required.", ToastAndroid.LONG);
+      } else {
+        Alert.alert("Error", "Email is required.");
+      }
       return;
     }
 
@@ -27,7 +39,11 @@ export default function OTPVerification() {
     });
 
     if (error) {
-      Alert.alert("Error", error.message);
+      if (Platform.OS === "android") {
+        ToastAndroid.show(error.message, ToastAndroid.LONG);
+      } else {
+        Alert.alert("Error", error.message);
+      }
     } else {
       router.replace("/edit-profile");
     }
@@ -40,7 +56,7 @@ export default function OTPVerification() {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: Colors[theme].background,
+        backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
       <Stack.Screen options={{ headerShown: false }} />
@@ -87,11 +103,14 @@ export default function OTPVerification() {
             justifyContent: "center",
             marginTop: 10,
           },
-          { backgroundColor: Colors[theme].text },
+          { backgroundColor: Colors[theme ?? "light"].text },
         ]}
       >
         <PoppinsText
-          style={{ color: Colors[theme].background, borderRadius: 5 }}
+          style={{
+            color: Colors[theme ?? "light"].background,
+            borderRadius: 5,
+          }}
         >
           {loading ? "Loading..." : "Verify OTP"}
         </PoppinsText>

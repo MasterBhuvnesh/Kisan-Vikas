@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Platform,
   Image,
+  ToastAndroid,
 } from "react-native";
 import { router, Stack } from "expo-router";
 import { supabase } from "@/lib/supabase";
@@ -28,7 +29,11 @@ export default function Login() {
     });
 
     if (signUpError) {
-      Alert.alert("Error", signUpError.message);
+      if (Platform.OS === "android") {
+        ToastAndroid.show(signUpError.message, ToastAndroid.LONG);
+      } else {
+        Alert.alert("Error", signUpError.message);
+      }
       setLoading(false);
       return;
     }

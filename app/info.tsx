@@ -1,7 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
-import { Text, View } from "@/components/Themed";
-import { MonoText, PoppinsText } from "@/components/StyledText";
+import { View } from "@/components/Themed";
+import { MonoText } from "@/components/StyledText";
 import { Stack } from "expo-router";
 import { ExternalLink } from "@/components/ExternalLink";
 import Colors from "@/constants/Colors";

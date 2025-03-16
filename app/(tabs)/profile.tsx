@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Pressable, StyleSheet, ToastAndroid, Platform } from "react-native";
-import { Text, View } from "@/components/Themed";
+import { Pressable, ToastAndroid, Platform } from "react-native";
+import { View } from "@/components/Themed";
 import { MonoText } from "@/components/StyledText";
-import { Redirect, router, Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import { Image } from "expo-image";
 import { supabase } from "@/lib/supabase";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { HashtagIcon } from "react-native-heroicons/outline";
-import { useAuth } from "@/providers/AuthProvider";
 
 const handleLogout = async () => {
   const { error } = await supabase.auth.signOut();
@@ -20,10 +19,6 @@ const handleLogout = async () => {
 };
 
 export default function ProfileScreen() {
-  const { session } = useAuth();
-  if (!session) {
-    return <Redirect href="/login" />;
-  }
   const theme = useColorScheme();
   const [userData, setUserData] = useState<any>(null);
 
@@ -86,7 +81,13 @@ export default function ProfileScreen() {
 
   if (!userData) {
     return (
-      <View style={styles.container}>
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <Stack.Screen
           options={{
             headerShown: false,
@@ -103,7 +104,13 @@ export default function ProfileScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View
+      style={{
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       {/* Hide the header */}
       <Stack.Screen
         options={{
@@ -286,11 +293,3 @@ export default function ProfileScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

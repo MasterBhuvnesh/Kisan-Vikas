@@ -1,7 +1,13 @@
 //  EXPLAINED CODE
 
 import React, { useState, useEffect } from "react";
-import { Pressable, TextInput, Alert, Platform } from "react-native";
+import {
+  Pressable,
+  TextInput,
+  Alert,
+  Platform,
+  ToastAndroid,
+} from "react-native";
 import { View } from "@/components/Themed";
 import { MonoText, PoppinsText } from "@/components/StyledText";
 import { Redirect, router, Stack } from "expo-router";
@@ -11,7 +17,11 @@ import { Image } from "expo-image"; // For displaying images/GIFs
 import { supabase } from "@/lib/supabase"; // Supabase client for database and storage
 import Colors from "@/constants/Colors"; // Theme colors
 import { useColorScheme } from "@/components/useColorScheme"; // For dark/light theme support
-import { ArrowUpTrayIcon } from "react-native-heroicons/outline"; // Icon for upload button
+import {
+  ArrowUpTrayIcon,
+  GifIcon,
+  PhotoIcon,
+} from "react-native-heroicons/outline"; // Icon for upload button
 import { useAuth } from "@/providers/AuthProvider";
 
 export default function EditScreen() {
@@ -218,10 +228,17 @@ export default function EditScreen() {
     // Validate date format (YYYY-MM-DD)
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateRegex.test(dateOfBirth)) {
-      Alert.alert(
-        "Error",
-        "Please enter a valid date in the format YYYY-MM-DD"
-      );
+      if (Platform.OS === "android") {
+        ToastAndroid.show(
+          "Please enter a valid date in the format YYYY-MM-DD",
+          ToastAndroid.SHORT
+        );
+      } else if (Platform.OS === "windows") {
+        Alert.alert(
+          "Error",
+          "Please enter a valid date in the format YYYY-MM-DD"
+        );
+      }
       return;
     }
 
@@ -248,11 +265,19 @@ export default function EditScreen() {
     ]);
 
     if (error) {
-      Alert.alert("Error", error.message); // Show error if update fails
+      if (Platform.OS === "android") {
+        ToastAndroid.show(error.message, ToastAndroid.SHORT);
+      } else if (Platform.OS === "windows") {
+        Alert.alert("Error", error.message);
+      }
       return;
     }
 
-    Alert.alert("Success", "Profile updated successfully"); // Show success message
+    if (Platform.OS === "android") {
+      ToastAndroid.show("Profile updated successfully", ToastAndroid.SHORT);
+    } else if (Platform.OS === "windows") {
+      Alert.alert("Success", "Profile updated successfully");
+    }
     router.replace("/"); // Navigate back to the home screen
   };
 
@@ -311,9 +336,10 @@ export default function EditScreen() {
         <View
           style={{
             alignSelf: "flex-end",
-            backgroundColor: Colors[theme ?? "light"].text,
-            padding: 10,
-            borderRadius: 10,
+            flexDirection: "row", // Align children in a row
+            justifyContent: "flex-end", // Align children to the end of the container
+            alignItems: "center", // Center items vertically
+            gap: 20, // Add spacing between elements
           }}
         >
           {Platform.OS === "web" ? (
@@ -329,19 +355,51 @@ export default function EditScreen() {
               id="fileInput"
             />
           ) : (
-            <Pressable onPress={uploadProfilePicMobileGif}>
-              <ArrowUpTrayIcon
-                size={18}
-                color={Colors[theme ?? "light"].background}
-              />
-            </Pressable>
+            <>
+              <Pressable onPress={uploadProfilePicMobileGif}>
+                <View
+                  style={{
+                    backgroundColor: Colors[theme ?? "light"].text,
+                    padding: 10,
+                    borderRadius: 10,
+                  }}
+                >
+                  <GifIcon
+                    size={18}
+                    color={Colors[theme ?? "light"].background}
+                  />
+                </View>
+              </Pressable>
+              <Pressable onPress={uploadProfilePicMobileImg}>
+                <View
+                  style={{
+                    backgroundColor: Colors[theme ?? "light"].text,
+                    padding: 10,
+                    borderRadius: 10,
+                  }}
+                >
+                  <PhotoIcon
+                    size={18}
+                    color={Colors[theme ?? "light"].background}
+                  />
+                </View>
+              </Pressable>
+            </>
           )}
           {Platform.OS === "web" && (
             <label htmlFor="fileInput">
-              <ArrowUpTrayIcon
-                size={18}
-                color={Colors[theme ?? "light"].background}
-              />
+              <View
+                style={{
+                  backgroundColor: Colors[theme ?? "light"].text,
+                  padding: 10,
+                  borderRadius: 10,
+                }}
+              >
+                <ArrowUpTrayIcon
+                  size={18}
+                  color={Colors[theme ?? "light"].background}
+                />
+              </View>
             </label>
           )}
         </View>

@@ -185,6 +185,3 @@ The profile update screen allows users to:
 - [Supabase](https://supabase.com/) for providing the backend services.
 - [Expo](https://expo.dev/) for the development framework.
 - [Heroicons](https://heroicons.com/) for the beautiful icons.
-
-$$
-$$

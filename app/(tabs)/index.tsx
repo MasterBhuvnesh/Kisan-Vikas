@@ -11,7 +11,20 @@ export default function Index() {
   const { session, loading } = useAuth();
 
   if (loading) {
-    return null;
+    return (
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: Colors[theme ?? "light"].background,
+        }}
+      >
+        <Stack.Screen />
+
+        <MonoText>Loading...</MonoText>
+      </View>
+    );
   }
 
   if (!session) {
@@ -51,8 +64,14 @@ export default function Index() {
           padding: 20,
         }}
       >
-        Features to be added : {"\n"}- Dark mode {"\n"}- Route extra params
-        management [web] {"\n"}- toast notification {"\n"} - icons
+        A basic overview of the app's features and what I have used:{"\n"}- Expo
+        Router for navigation{"\n"}- Expo Image for image handling, as it
+        supports GIFs, which React Native doesn't{"\n"}- Expo Image Picker for
+        image picking{"\n"}- Expo Document Picker for GIF picking{"\n"}-
+        File-based routing{"\n"}- Theme-based color scheme{"\n"}- Supabase for
+        auth and storage{"\n"}- Custom splash screen and app icon{"\n"}- Custom
+        font{"\n"}- Custom components like View, Text, etc. to support Theme
+        {"\n"}
       </PoppinsText>
     </View>
   );

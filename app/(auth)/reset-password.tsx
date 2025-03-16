@@ -7,6 +7,9 @@ import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/providers/AuthProvider";
 import { Text, View } from "@/components/Themed";
+import { Platform } from "react-native";
+import { ToastAndroid } from "react-native";
+
 export default function OTPVerification() {
   const user = useAuth();
   const email = user.session?.user.email;
@@ -25,16 +28,27 @@ export default function OTPVerification() {
 
   const handleResetPassword = async () => {
     if (!email) {
-      Alert.alert("Error", "Email is required.");
+      if (Platform.OS === "android") {
+        ToastAndroid.show("Email is required.", ToastAndroid.LONG);
+      } else {
+        Alert.alert("Error", "Email is required.");
+      }
       return;
     }
 
     // Check if all password requirements are met
     if (!Object.values(passwordValidation).every((rule) => rule)) {
-      Alert.alert(
-        "Error",
-        "Please ensure your password meets all requirements."
-      );
+      if (Platform.OS === "android") {
+        ToastAndroid.show(
+          "Please ensure your password meets all requirements.",
+          ToastAndroid.LONG
+        );
+      } else {
+        Alert.alert(
+          "Error",
+          "Please ensure your password meets all requirements."
+        );
+      }
       return;
     }
 
@@ -42,14 +56,22 @@ export default function OTPVerification() {
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
-      Alert.alert("Error", error.message);
+      if (Platform.OS === "android") {
+        ToastAndroid.show(error.message, ToastAndroid.LONG);
+      } else {
+        Alert.alert("Error", error.message);
+      }
     } else {
-      Alert.alert("Success", "Password updated successfully!", [
-        {
-          text: "OK",
-          onPress: () => router.replace("/"),
-        },
-      ]);
+      if (Platform.OS === "android") {
+        ToastAndroid.show("Password updated successfully!", ToastAndroid.LONG);
+      } else {
+        Alert.alert("Success", "Password updated successfully!", [
+          {
+            text: "OK",
+            onPress: () => router.replace("/"),
+          },
+        ]);
+      }
     }
     setLoading(false);
   };
