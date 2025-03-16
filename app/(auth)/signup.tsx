@@ -36,7 +36,7 @@ export default function Login() {
       if (Platform.OS === "android") {
         ToastAndroid.show(signUpError.message, ToastAndroid.LONG);
       } else {
-        Alert.alert("Error", signUpError.message);
+        alert("Error : " + signUpError.message);
       }
       setLoading(false);
       return;

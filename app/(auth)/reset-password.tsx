@@ -31,7 +31,7 @@ export default function OTPVerification() {
       if (Platform.OS === "android") {
         ToastAndroid.show("Email is required.", ToastAndroid.LONG);
       } else {
-        Alert.alert("Error", "Email is required.");
+        alert("Error : Email is required.");
       }
       return;
     }
@@ -44,10 +44,7 @@ export default function OTPVerification() {
           ToastAndroid.LONG
         );
       } else {
-        Alert.alert(
-          "Error",
-          "Please ensure your password meets all requirements."
-        );
+        alert("Error : Please ensure your password meets all requirements.");
       }
       return;
     }
@@ -59,13 +56,13 @@ export default function OTPVerification() {
       if (Platform.OS === "android") {
         ToastAndroid.show(error.message, ToastAndroid.LONG);
       } else {
-        Alert.alert("Error", error.message);
+        alert("Error : " + error.message);
       }
     } else {
       if (Platform.OS === "android") {
         ToastAndroid.show("Password updated successfully!", ToastAndroid.LONG);
       } else {
-        Alert.alert("Success", "Password updated successfully!");
+        alert("Success : Password updated successfully!");
       }
       router.replace("/");
     }

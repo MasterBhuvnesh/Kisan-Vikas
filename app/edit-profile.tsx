@@ -7,6 +7,7 @@ import {
   Alert,
   Platform,
   ToastAndroid,
+  useWindowDimensions,
 } from "react-native";
 import { View } from "@/components/Themed";
 import { MonoText, PoppinsText } from "@/components/StyledText";
@@ -32,6 +33,9 @@ export default function EditScreen() {
   const [uploading, setUploading] = useState(false); // State to track upload progress
   const [userData, setUserData] = useState<any>(null); // State to store user data from the database
   const { session } = useAuth(); // Get the user session from the AuthProvider
+  const { width } = useWindowDimensions(); // Get the window width
+
+  const isMobile = width < 768; // Define a breakpoint for mobile devices
   // Redirect to login screen if user is not authenticated
   if (!session) {
     return <Redirect href="/login" />;
@@ -52,7 +56,7 @@ export default function EditScreen() {
           .single();
 
         if (error) {
-          Alert.alert("Error", error.message); // Show error if fetching fails
+          alert("Error : " + error.message); // Show error if fetching fails
           return;
         }
 
@@ -118,7 +122,7 @@ export default function EditScreen() {
       setProfilePic(urlData.publicUrl); // Update profile picture URL
     } catch (error) {
       if (error instanceof Error) {
-        Alert.alert("Error", error.message); // Show error message
+        alert("Error : " + error.message); // Show error message
       }
     } finally {
       setUploading(false); // End upload process
@@ -177,7 +181,7 @@ export default function EditScreen() {
       setProfilePic(urlData.publicUrl); // Update profile picture URL
     } catch (error) {
       if (error instanceof Error) {
-        Alert.alert("Error", error.message); // Show error message
+        alert("Error : " + error.message); // Show error message
       }
     } finally {
       setUploading(false); // End upload process
@@ -211,7 +215,7 @@ export default function EditScreen() {
       setProfilePic(urlData.publicUrl); // Update profile picture URL
     } catch (error) {
       if (error instanceof Error) {
-        Alert.alert("Error", error.message); // Show error message
+        alert("Error : " + error.message); // Show error message
       }
     } finally {
       setUploading(false); // End upload process
@@ -221,7 +225,7 @@ export default function EditScreen() {
   // Save user data to the database
   const handleSave = async () => {
     if (!fullname || !dateOfBirth) {
-      Alert.alert("Error", "Please fill all fields"); // Validate required fields
+      alert("Error : Please fill all fields"); // Validate required fields
       return;
     }
 
@@ -234,10 +238,7 @@ export default function EditScreen() {
           ToastAndroid.SHORT
         );
       } else if (Platform.OS === "windows") {
-        Alert.alert(
-          "Error",
-          "Please enter a valid date in the format YYYY-MM-DD"
-        );
+        alert("Error : Please enter a valid date in the format YYYY-MM-DD");
       }
       return;
     }
@@ -247,7 +248,7 @@ export default function EditScreen() {
     } = await supabase.auth.getUser(); // Get the authenticated user
 
     if (!user) {
-      Alert.alert("Error", "User not authenticated"); // Check if user is authenticated
+      alert("Error : User not authenticated"); // Check if user is authenticated
       return;
     }
     const username = user.email?.split("@")[0] || "user"; // Generate username from email
@@ -268,7 +269,7 @@ export default function EditScreen() {
       if (Platform.OS === "android") {
         ToastAndroid.show(error.message, ToastAndroid.SHORT);
       } else if (Platform.OS === "windows") {
-        Alert.alert("Error", error.message);
+        alert("Error : " + error.message);
       }
       return;
     }
@@ -276,7 +277,7 @@ export default function EditScreen() {
     if (Platform.OS === "android") {
       ToastAndroid.show("Profile updated successfully", ToastAndroid.SHORT);
     } else if (Platform.OS === "windows") {
-      Alert.alert("Success", "Profile updated successfully");
+      alert("Success : Profile updated successfully");
     }
     router.replace("/"); // Navigate back to the home screen
   };
@@ -313,19 +314,19 @@ export default function EditScreen() {
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
-        padding: 20,
+        padding: isMobile ? 10 : 20, // Adjust padding for mobile
         backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
       <Stack.Screen options={{ headerShown: false }} />
       <View
         style={{
-          width: "100%",
+          width: isMobile ? "100%" : "30%", // Adjust width for mobile
           backgroundColor: Colors[theme ?? "light"].background,
           borderWidth: 1,
           borderColor: Colors[theme ?? "light"].text,
           borderRadius: 15,
-          padding: 20,
+          padding: isMobile ? 15 : 20, // Adjust padding for mobile
           shadowColor: "#000",
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.25,
@@ -339,7 +340,7 @@ export default function EditScreen() {
             flexDirection: "row", // Align children in a row
             justifyContent: "flex-end", // Align children to the end of the container
             alignItems: "center", // Center items vertically
-            gap: 20, // Add spacing between elements
+            gap: 10, // Reduce gap for mobile
           }}
         >
           {Platform.OS === "web" ? (
@@ -407,15 +408,16 @@ export default function EditScreen() {
         <View
           style={{
             alignItems: "center",
-            marginVertical: 20,
+            marginVertical: isMobile ? 10 : 20, // Adjust margin for mobile
           }}
         >
           {profilePic && (
             <Image
               source={{ uri: profilePic }}
               style={{
-                width: 100,
-                height: 100,
+                width: isMobile ? 80 : 100, // Adjust image size for mobile
+                height: isMobile ? 80 : 100,
+
                 borderRadius: 50,
                 borderWidth: 2,
                 borderColor: Colors[theme ?? "light"].text,
@@ -456,6 +458,7 @@ export default function EditScreen() {
               style={{
                 flex: 1,
                 padding: 10,
+                width: "70%",
                 borderBottomWidth: 1,
                 borderColor: Colors[theme ?? "light"].text,
                 borderRadius: 5,
@@ -490,6 +493,7 @@ export default function EditScreen() {
               autoCapitalize="none"
               style={{
                 flex: 1,
+                width: "70%",
                 padding: 10,
                 borderBottomWidth: 1,
                 borderColor: Colors[theme ?? "light"].text,
@@ -506,12 +510,12 @@ export default function EditScreen() {
         onPress={handleSave}
         style={{
           backgroundColor: Colors[theme ?? "light"].text,
-          width: "50%",
-          padding: 10,
+          width: isMobile ? "80%" : "30%", // Adjust width for mobile
+          padding: isMobile ? 8 : 10, // Adjust padding for mobile
           borderRadius: 15,
           alignItems: "center",
           justifyContent: "center",
-          marginTop: 20,
+          marginTop: isMobile ? 15 : 20, // Adjust margin for mobile
         }}
       >
         <MonoText

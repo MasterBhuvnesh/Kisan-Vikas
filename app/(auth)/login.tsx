@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   TextInput,
-  Alert,
   Pressable,
   TouchableOpacity,
   Platform,
@@ -36,7 +35,7 @@ export default function Login() {
       if (Platform.OS === "android") {
         ToastAndroid.show(error.message, ToastAndroid.LONG);
       } else {
-        Alert.alert("Error", error.message);
+        alert("Error: " + error.message);
       }
     } else {
       router.replace("/(tabs)");

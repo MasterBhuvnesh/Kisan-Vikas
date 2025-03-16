@@ -26,7 +26,7 @@ export default function OTPVerification() {
       if (Platform.OS === "android") {
         ToastAndroid.show("Email is required.", ToastAndroid.LONG);
       } else {
-        Alert.alert("Error", "Email is required.");
+        alert("Error : Email is required.");
       }
       return;
     }
@@ -42,7 +42,7 @@ export default function OTPVerification() {
       if (Platform.OS === "android") {
         ToastAndroid.show(error.message, ToastAndroid.LONG);
       } else {
-        Alert.alert("Error", error.message);
+        alert("Error : " + error.message);
       }
     } else {
       router.replace("/edit-profile");
