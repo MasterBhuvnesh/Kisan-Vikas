@@ -185,3 +185,24 @@ The profile update screen allows users to:
 - [Supabase](https://supabase.com/) for providing the backend services.
 - [Expo](https://expo.dev/) for the development framework.
 - [Heroicons](https://heroicons.com/) for the beautiful icons.
+
+## Web Deployment via EAS Hosting
+
+To deploy the application on the web using EAS hosting, execute the following steps:
+
+1. Prepare the project for web deployment:
+   ```
+   npx expo export --platform web
+   ```
+2. Deploy the project to the production environment:
+
+   ```
+   eas deploy --environment production
+   ```
+
+   This step generates a deployment URL.
+
+3. Execute the production deployment to obtain the production URL:
+   ```
+   eas deploy --prod
+   ```
