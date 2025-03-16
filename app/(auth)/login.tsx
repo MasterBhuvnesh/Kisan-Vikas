@@ -7,6 +7,7 @@ import {
   Platform,
   Image,
   ToastAndroid,
+  useWindowDimensions,
 } from "react-native";
 import { router, Stack } from "expo-router";
 import { supabase } from "@/lib/supabase";
@@ -20,6 +21,9 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const { width } = useWindowDimensions();
+
+  const isMobile = width < 768;
 
   const handleLogin = async () => {
     setLoading(true);
@@ -43,8 +47,8 @@ export default function Login() {
   const isWeb = Platform.OS === "web";
 
   return (
-    <View style={{ flex: 1, flexDirection: "row" }}>
-      {isWeb && (
+    <View style={{ flex: 1, flexDirection: isMobile ? "column" : "row" }}>
+      {isWeb && !isMobile && (
         <Image
           source={require("@/assets/images/background.jpg")}
           style={{ width: "70%", height: "100%" }}
@@ -59,7 +63,7 @@ export default function Login() {
             justifyContent: "center",
             padding: 20,
           },
-          isWeb && { width: "30%" },
+          isWeb && !isMobile && { width: "30%" },
         ]}
       >
         <Stack.Screen options={{ headerShown: false }} />

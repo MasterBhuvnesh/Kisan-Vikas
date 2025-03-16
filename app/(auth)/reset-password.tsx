@@ -65,13 +65,9 @@ export default function OTPVerification() {
       if (Platform.OS === "android") {
         ToastAndroid.show("Password updated successfully!", ToastAndroid.LONG);
       } else {
-        Alert.alert("Success", "Password updated successfully!", [
-          {
-            text: "OK",
-            onPress: () => router.replace("/"),
-          },
-        ]);
+        Alert.alert("Success", "Password updated successfully!");
       }
+      router.replace("/");
     }
     setLoading(false);
   };
