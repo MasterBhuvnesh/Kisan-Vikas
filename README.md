@@ -51,6 +51,7 @@ Run the following commands to install the required dependencies:
 npm install react-native-heroicons
 npx expo install @supabase/supabase-js @react-native-async-storage/async-storage
 npx expo install expo-image
+npx expo install expo-image-picker
 npx expo install expo-document-picker
 ```
 
