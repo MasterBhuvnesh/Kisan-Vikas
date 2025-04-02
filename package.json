@@ -1,5 +1,5 @@
 {
-  "name": "securesync",
+  "name": "kisanvikas",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
@@ -14,9 +14,11 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
+    "@google/generative-ai": "^0.24.0",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-navigation/native": "^7.0.14",
     "@supabase/supabase-js": "^2.49.1",
+    "dayjs": "^1.11.13",
     "expo": "~52.0.38",
     "expo-document-picker": "~13.0.3",
     "expo-font": "~13.0.4",

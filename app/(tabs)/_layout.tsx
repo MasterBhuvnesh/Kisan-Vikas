@@ -6,9 +6,10 @@ import { useColorScheme } from "@/components/useColorScheme";
 import {
   HomeIcon,
   UserCircleIcon,
-  InformationCircleIcon,
+  PlusCircleIcon,
+  BookmarkIcon,
 } from "react-native-heroicons/outline";
-import { useClientOnlyValue } from "@/components/useClientOnlyValue";
+import Foundation from "@expo/vector-icons/Foundation";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -48,19 +49,20 @@ export default function TabLayout() {
             fontFamily: "Poppins",
           },
           tabBarIcon: ({ color }) => (
-            <HomeIcon
+            <Foundation
+              name="home"
               size={25}
               color={color}
             />
           ),
           headerRight: () => (
             <Link
-              href="/info"
+              href="/add-post"
               asChild
             >
               <Pressable>
                 {({ pressed }) => (
-                  <InformationCircleIcon
+                  <PlusCircleIcon
                     size={25}
                     color={Colors[colorScheme ?? "light"].text}
                     style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
@@ -68,6 +70,22 @@ export default function TabLayout() {
                 )}
               </Pressable>
             </Link>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="saved"
+        options={{
+          title: "Save",
+          tabBarShowLabel: false,
+          tabBarLabelStyle: {
+            fontFamily: "Poppins",
+          },
+          tabBarIcon: ({ color }) => (
+            <BookmarkIcon
+              size={25}
+              color={color}
+            />
           ),
         }}
       />

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "securesync",
-    "slug": "securesync",
+    "name": "kisanvikas",
+    "slug": "kisanvikas",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -31,7 +31,7 @@
       [
         "expo-router",
         {
-          "origin": "https://securesync.expo.app/"
+          "origin": "https://kisanvikas.expo.app/"
         }
       ],
       [
@@ -53,9 +53,6 @@
     "extra": {
       "router": {
         "origin": false
-      },
-      "eas": {
-        "projectId": "f6361baa-5c1a-41b0-9d55-23d1924bf47c"
       }
     }
   }

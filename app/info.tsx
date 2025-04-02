@@ -3,7 +3,6 @@ import { Platform } from "react-native";
 import { View } from "@/components/Themed";
 import { MonoText } from "@/components/StyledText";
 import { Stack } from "expo-router";
-import { ExternalLink } from "@/components/ExternalLink";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 export default function InfoScreen() {
@@ -30,38 +29,9 @@ export default function InfoScreen() {
           textAlign: "center",
         }}
       >
-        SecureSync
+        Kisan Vikas
       </MonoText>
 
-      <MonoText
-        style={{
-          fontSize: 12,
-          margin: 20,
-          textAlign: "center",
-        }}
-      >
-        Hello, I'm Bhuvnesh Verma. This is a basic Expo app template that
-        includes authentication and user management features to facilitate the
-        start of your project.
-      </MonoText>
-      <ExternalLink
-        href="https://github.com/MasterBhuvnesh"
-        style={{
-          justifyContent: "center",
-          alignItems: "flex-end",
-        }}
-      >
-        <MonoText
-          style={{
-            fontSize: 16,
-            margin: 20,
-            textAlign: "center",
-            color: Colors[theme ?? "light"].blue,
-          }}
-        >
-          Made by @ MasterBhuvnesh
-        </MonoText>
-      </ExternalLink>
       <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
     </View>
   );

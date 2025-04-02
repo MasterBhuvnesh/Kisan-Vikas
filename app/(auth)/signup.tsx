@@ -77,7 +77,7 @@ export default function Login() {
             textAlign: "center",
           }}
         >
-          Create a SecureSync Account
+          Create a Kisan Vikas Account
         </PoppinsBoldText>
         <PoppinsText
           style={{

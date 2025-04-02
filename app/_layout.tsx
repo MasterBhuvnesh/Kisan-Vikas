@@ -73,6 +73,10 @@ function RootLayoutNav() {
             name="edit-profile"
             options={{ presentation: "modal", headerShown: false }}
           />
+          <Stack.Screen
+            name="add-quote"
+            options={{ presentation: "modal", headerShown: false }}
+          />
         </Stack>
       </AuthProvider>
     </ThemeProvider>

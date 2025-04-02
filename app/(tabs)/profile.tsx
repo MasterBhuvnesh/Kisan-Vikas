@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Pressable, ToastAndroid, Platform } from "react-native";
+import { Pressable, ToastAndroid, Platform, Settings } from "react-native";
 import { View } from "@/components/Themed";
 import { MonoText } from "@/components/StyledText";
 import { router, Stack } from "expo-router";
@@ -7,7 +7,8 @@ import { Image } from "expo-image";
 import { supabase } from "@/lib/supabase";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
-import { HashtagIcon } from "react-native-heroicons/outline";
+import { Cog6ToothIcon, HashtagIcon } from "react-native-heroicons/outline";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const handleLogout = async () => {
   const { error } = await supabase.auth.signOut();
@@ -104,20 +105,46 @@ export default function ProfileScreen() {
   }
 
   return (
-    <View
+    <SafeAreaView
       style={{
         flex: 1,
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "flex-start",
+        // marginTop: 20,
+        backgroundColor: Colors[theme ?? "light"].background,
       }}
     >
       {/* Hide the header */}
       <Stack.Screen
         options={{
-          headerShown: false,
-          headerTitleStyle: { fontFamily: "SpaceMono" },
+          headerShown: true,
+          title: "Profile",
+          headerTitleAlign: "left",
+          headerTitleStyle: { fontFamily: "PoppinsBold" },
           headerStyle: { backgroundColor: Colors[theme ?? "light"].background },
           headerTintColor: Colors[theme ?? "light"].text,
+          headerRight(props) {
+            return (
+              <Pressable
+                onPress={() => {
+                  router.push("/edit-profile");
+                }}
+                style={{
+                  padding: 10,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "transparent",
+                  borderRadius: 50,
+                  marginRight: 10,
+                }}
+              >
+                <Cog6ToothIcon
+                  size={25}
+                  color={Colors[theme ?? "light"].text}
+                />
+              </Pressable>
+            );
+          },
         }}
       />
       <View
@@ -219,7 +246,7 @@ export default function ProfileScreen() {
       </View>
 
       {/* Update Button */}
-      <Pressable
+      {/* <Pressable
         onPress={() => {
           router.push("/edit-profile");
         }}
@@ -241,10 +268,10 @@ export default function ProfileScreen() {
         >
           Update
         </MonoText>
-      </Pressable>
+      </Pressable> */}
 
       {/* Reset Password Button */}
-      <Pressable
+      {/* <Pressable
         onPress={() => {
           router.push("/reset-password");
         }}
@@ -266,10 +293,10 @@ export default function ProfileScreen() {
         >
           Reset Password
         </MonoText>
-      </Pressable>
+      </Pressable> */}
 
       {/* Logout Button */}
-      <Pressable
+      {/* <Pressable
         onPress={handleLogout}
         style={{
           backgroundColor: Colors[theme ?? "light"].text,
@@ -289,7 +316,7 @@ export default function ProfileScreen() {
         >
           Logout
         </MonoText>
-      </Pressable>
-    </View>
+      </Pressable> */}
+    </SafeAreaView>
   );
 }

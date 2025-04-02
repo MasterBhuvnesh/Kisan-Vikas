@@ -74,7 +74,7 @@ export default function Login() {
             textAlign: "center",
           }}
         >
-          Welcome Back to SecureSync
+          Welcome Back to Kisan Vikas
         </PoppinsBoldText>
         <PoppinsText
           style={{

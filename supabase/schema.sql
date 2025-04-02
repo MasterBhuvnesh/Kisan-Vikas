@@ -70,3 +70,46 @@ ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER PUBLICATION supabase_realtime
   ADD TABLE users;
 
+--                          POSTS
+
+-- Create posts table with proper relationships
+CREATE TABLE posts (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  content TEXT,
+  image_url TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE
+);
+
+-- Enable Row Level Security
+ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
+
+-- Create policies
+CREATE POLICY "Enable public read access" ON posts
+FOR SELECT USING (true);
+
+CREATE POLICY "Enable insert for authenticated users" ON posts
+FOR INSERT TO authenticated WITH CHECK (true);
+
+CREATE POLICY "Enable update for post owners" ON posts
+FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Enable delete for post owners" ON posts
+FOR DELETE USING (auth.uid() = user_id);
+
+-- Create images bucket if not exists
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('images', 'images', true);
+
+-- Set bucket policies
+CREATE POLICY "Allow public read access to images" 
+ON storage.objects FOR SELECT 
+USING (bucket_id = 'images');
+
+CREATE POLICY "Allow authenticated uploads to posts" 
+ON storage.objects FOR INSERT 
+TO authenticated 
+WITH CHECK (
+  bucket_id = 'images' AND
+  (storage.foldername(name))[1] = 'posts'
+);
