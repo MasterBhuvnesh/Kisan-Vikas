@@ -4,7 +4,6 @@ import { Pressable } from "react-native";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import {
-  HomeIcon,
   UserCircleIcon,
   PlusCircleIcon,
   BookmarkIcon,
@@ -54,22 +53,6 @@ export default function TabLayout() {
               size={25}
               color={color}
             />
-          ),
-          headerRight: () => (
-            <Link
-              href="/add-post"
-              asChild
-            >
-              <Pressable>
-                {({ pressed }) => (
-                  <PlusCircleIcon
-                    size={25}
-                    color={Colors[colorScheme ?? "light"].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
           ),
         }}
       />

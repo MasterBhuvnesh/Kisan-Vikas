@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Pressable, ToastAndroid, Platform, Settings } from "react-native";
 import { View } from "@/components/Themed";
 import { MonoText } from "@/components/StyledText";
-import { router, Stack } from "expo-router";
+import { Redirect, router, Stack } from "expo-router";
 import { Image } from "expo-image";
 import { supabase } from "@/lib/supabase";
 import Colors from "@/constants/Colors";
@@ -30,7 +30,7 @@ export default function ProfileScreen() {
     } = await supabase.auth.getUser();
 
     if (authError) {
-      console.error("Error fetching authenticated user:", authError);
+      <Redirect href="/login" />;
       return;
     }
 
@@ -296,7 +296,7 @@ export default function ProfileScreen() {
       </Pressable> */}
 
       {/* Logout Button */}
-      {/* <Pressable
+      <Pressable
         onPress={handleLogout}
         style={{
           backgroundColor: Colors[theme ?? "light"].text,
@@ -316,7 +316,7 @@ export default function ProfileScreen() {
         >
           Logout
         </MonoText>
-      </Pressable> */}
+      </Pressable>
     </SafeAreaView>
   );
 }

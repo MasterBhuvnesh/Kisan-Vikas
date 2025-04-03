@@ -6,17 +6,19 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  Pressable,
 } from "react-native";
 import { View, Text } from "@/components/Themed";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/providers/AuthProvider";
-import { Redirect, Stack } from "expo-router";
+import { Link, Stack } from "expo-router";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { Image } from "expo-image";
 import { MonoText } from "@/components/StyledText";
 import { FontAwesome } from "@expo/vector-icons";
 import dayjs from "dayjs";
+import { PlusCircleIcon } from "react-native-heroicons/outline";
 
 interface Post {
   id: string;
@@ -34,40 +36,16 @@ interface Post {
   is_saved?: boolean;
 }
 
-// Add a default profile picture (you can use any local image or a default avatar)
 const DEFAULT_PROFILE_PIC = require("@/assets/images/user_pic.jpg");
 
 export default function HomeScreen() {
   const theme = useColorScheme();
-  const { session, loading } = useAuth();
+  const { session } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [imageLoading, setImageLoading] = useState<{ [key: string]: boolean }>(
     {}
   );
-
-  if (loading) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: Colors[theme ?? "light"].background,
-        }}
-      >
-        <Stack.Screen />
-        <ActivityIndicator
-          size="large"
-          color={Colors[theme ?? "light"].tint}
-        />
-      </View>
-    );
-  }
-
-  if (!session) {
-    return <Redirect href="/login" />;
-  }
 
   const fetchPosts = async () => {
     try {
@@ -75,52 +53,49 @@ export default function HomeScreen() {
       const { data: postsData, error: postsError } = await supabase
         .from("posts")
         .select(
-          `
-          *,
+          `*, 
           user:user_id (
             id,
             fullname,
             username,
             profile_pic
-          )
-        `
+          )`
         )
         .order("created_at", { ascending: false });
 
       if (postsError) throw postsError;
 
-      if (session?.user.id) {
-        const { data: savedData, error: savedError } = await supabase
-          .from("saved_posts")
-          .select("post_id")
-          .eq("user_id", session.user.id);
-
-        if (savedError) throw savedError;
-
-        const savedPostIds = savedData?.map((item) => item.post_id) || [];
-        const postsWithSavedStatus =
-          postsData?.map((post) => ({
-            ...post,
-            is_saved: savedPostIds.includes(post.id),
-          })) || [];
-
-        setPosts(postsWithSavedStatus);
-
-        // Initialize loading states for all images
-        const initialLoadingStates = postsWithSavedStatus.reduce(
-          (acc, post) => {
-            if (post.user.profile_pic) {
-              acc[post.id] = true;
-            }
-            return acc;
-          },
-          {} as { [key: string]: boolean }
-        );
-
-        setImageLoading(initialLoadingStates);
-      } else {
+      // For non-logged in users, just show posts without saved status
+      if (!session?.user.id) {
         setPosts(postsData || []);
+        return;
       }
+
+      // For logged in users, check saved status
+      const { data: savedData, error: savedError } = await supabase
+        .from("saved_posts")
+        .select("post_id")
+        .eq("user_id", session.user.id);
+
+      if (savedError) throw savedError;
+
+      const savedPostIds = savedData?.map((item) => item.post_id) || [];
+      const postsWithSavedStatus =
+        postsData?.map((post) => ({
+          ...post,
+          is_saved: savedPostIds.includes(post.id),
+        })) || [];
+
+      setPosts(postsWithSavedStatus);
+
+      const initialLoadingStates = postsWithSavedStatus.reduce((acc, post) => {
+        if (post.user.profile_pic) {
+          acc[post.id] = true;
+        }
+        return acc;
+      }, {} as { [key: string]: boolean });
+
+      setImageLoading(initialLoadingStates);
     } catch (error) {
       Alert.alert("Error", "Failed to fetch posts");
       console.error(error);
@@ -131,7 +106,7 @@ export default function HomeScreen() {
 
   const toggleSave = async (postId: string, currentlySaved: boolean) => {
     if (!session?.user.id) {
-      Alert.alert("Error", "You need to be logged in to save posts");
+      Alert.alert("Please Login", "You need to log in to save posts");
       return;
     }
 
@@ -203,6 +178,23 @@ export default function HomeScreen() {
           headerStyle: {
             backgroundColor: Colors[theme ?? "light"].background,
           },
+          headerRight: () =>
+            session ? (
+              <Link
+                href="/add-post"
+                asChild
+              >
+                <Pressable>
+                  {({ pressed }) => (
+                    <PlusCircleIcon
+                      size={25}
+                      color={Colors[theme ?? "light"].text}
+                      style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                    />
+                  )}
+                </Pressable>
+              </Link>
+            ) : null,
         }}
       />
 
@@ -218,7 +210,6 @@ export default function HomeScreen() {
               },
             ]}
           >
-            {/* User info row */}
             <View style={styles.userRow}>
               <View style={styles.profilePicContainer}>
                 {imageLoading[item.id] && (
@@ -251,9 +242,15 @@ export default function HomeScreen() {
                 onPress={() => toggleSave(item.id, item.is_saved || false)}
               >
                 <FontAwesome
-                  name={item.is_saved ? "bookmark" : "bookmark-o"}
+                  name={
+                    session
+                      ? item.is_saved
+                        ? "bookmark"
+                        : "bookmark-o"
+                      : "bookmark-o"
+                  }
                   size={20}
-                  color={Colors[theme ?? "light"].text}
+                  color={session ? Colors[theme ?? "light"].text : "#aaa"}
                 />
               </TouchableOpacity>
             </View>
@@ -285,7 +282,10 @@ export default function HomeScreen() {
         }
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <MonoText>No posts yet. Create the first one!</MonoText>
+            <MonoText>
+              No posts yet.{" "}
+              {session ? "Create the first one!" : "Login to create posts."}
+            </MonoText>
           </View>
         }
         contentContainerStyle={styles.listContent}
