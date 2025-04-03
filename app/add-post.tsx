@@ -6,6 +6,8 @@ import {
   TextInput,
   View,
   ActivityIndicator,
+  useWindowDimensions,
+  Platform,
 } from "react-native";
 import { Text } from "@/components/Themed";
 import { supabase } from "@/lib/supabase";
@@ -29,6 +31,9 @@ export default function AddPostScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
+  const { width } = useWindowDimensions();
+  const isMobile = width < 768;
+  const isWeb = Platform.OS === "web";
 
   const pickImage = async () => {
     try {
@@ -129,8 +134,8 @@ export default function AddPostScreen() {
   };
 
   const handleSubmit = async () => {
-    if (!content && !imageUri) {
-      Alert.alert("Error", "Please add content or an image");
+    if (!content || !imageUri) {
+      Alert.alert("Error", "Both text and an image are required");
       return;
     }
 

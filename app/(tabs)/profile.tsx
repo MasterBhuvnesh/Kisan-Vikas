@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Pressable, ToastAndroid, Platform, Settings } from "react-native";
+import {
+  Pressable,
+  ToastAndroid,
+  Platform,
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  useWindowDimensions,
+} from "react-native";
 import { View } from "@/components/Themed";
 import { MonoText } from "@/components/StyledText";
 import { Redirect, router, Stack } from "expo-router";
@@ -7,8 +15,13 @@ import { Image } from "expo-image";
 import { supabase } from "@/lib/supabase";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
-import { Cog6ToothIcon, HashtagIcon } from "react-native-heroicons/outline";
+import {
+  Cog6ToothIcon,
+  HashtagIcon,
+  TrashIcon,
+} from "react-native-heroicons/outline";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuth } from "@/providers/AuthProvider";
 
 const handleLogout = async () => {
   const { error } = await supabase.auth.signOut();
@@ -22,6 +35,11 @@ const handleLogout = async () => {
 export default function ProfileScreen() {
   const theme = useColorScheme();
   const [userData, setUserData] = useState<any>(null);
+  const [userPosts, setUserPosts] = useState<any[]>([]);
+  const { session, loading } = useAuth();
+  const { width } = useWindowDimensions();
+  const isMobile = width < 768;
+  const isWeb = Platform.OS === "web";
 
   const fetchUserData = async () => {
     const {
@@ -48,25 +66,77 @@ export default function ProfileScreen() {
 
       if (!data) {
         console.log("No user data found for the authenticated user");
-        // Handle the case where no user data is found
         return;
       }
 
       setUserData(data);
+
+      // Fetch user posts
+      fetchUserPosts(user.id);
     }
+  };
+
+  const fetchUserPosts = async (userId: string) => {
+    const { data, error } = await supabase
+      .from("posts")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching user posts:", error);
+      return;
+    }
+
+    setUserPosts(data || []);
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    // Show confirmation dialog
+    if (Platform.OS === "android") {
+      ToastAndroid.show("Deleting post...", ToastAndroid.SHORT);
+    }
+
+    const { error } = await supabase.from("posts").delete().eq("id", postId);
+
+    if (error) {
+      console.error("Error deleting post:", error);
+      if (Platform.OS === "android") {
+        ToastAndroid.show("Error deleting post", ToastAndroid.SHORT);
+      } else {
+        alert("Error deleting post");
+      }
+      return;
+    }
+
+    // Remove post from state
+    setUserPosts(userPosts.filter((post) => post.id !== postId));
+
+    if (Platform.OS === "android") {
+      ToastAndroid.show("Post deleted successfully", ToastAndroid.SHORT);
+    } else {
+      alert("Post deleted successfully");
+    }
+  };
+
+  // Truncate text to first 4-5 words
+  const truncateText = (text: string) => {
+    if (!text) return "";
+    const words = text.split(" ");
+    const truncated = words.slice(0, 5).join(" ");
+    return words.length > 5 ? `${truncated}...` : truncated;
   };
 
   useEffect(() => {
     fetchUserData();
 
     // Subscribe to realtime changes in the "users" table
-    const subscription = supabase
+    const userSubscription = supabase
       .channel("users")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "users" }, // Listen to all changes (insert, update, delete) on the "users" table
+        { event: "*", schema: "public", table: "users" },
         (payload) => {
-          // If the updated user is the current user, refresh the data
           if ("id" in payload.new && payload.new.id === userData?.id) {
             fetchUserData();
           }
@@ -74,11 +144,57 @@ export default function ProfileScreen() {
       )
       .subscribe();
 
+    // Subscribe to realtime changes in the "posts" table
+    const postsSubscription = supabase
+      .channel("posts")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "posts" },
+        (payload) => {
+          if (
+            payload.eventType === "INSERT" ||
+            payload.eventType === "UPDATE"
+          ) {
+            if (
+              "user_id" in payload.new &&
+              payload.new.user_id === userData?.id
+            ) {
+              fetchUserPosts(userData.id);
+            }
+          }
+        }
+      )
+      .subscribe();
+
     // Cleanup subscription on component unmount
     return () => {
-      subscription.unsubscribe();
+      userSubscription.unsubscribe();
+      postsSubscription.unsubscribe();
     };
-  }, [userData?.id]); // Only re-run the effect if the user ID changes
+  }, [userData?.id]);
+
+  if (loading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: Colors[theme ?? "light"].background,
+        }}
+      >
+        <Stack.Screen />
+        <ActivityIndicator
+          size="large"
+          color={Colors[theme ?? "light"].tint}
+        />
+      </View>
+    );
+  }
+
+  if (!session) {
+    return <Redirect href="/login" />;
+  }
 
   if (!userData) {
     return (
@@ -110,11 +226,12 @@ export default function ProfileScreen() {
         flex: 1,
         alignItems: "center",
         justifyContent: "flex-start",
-        // marginTop: 20,
         backgroundColor: Colors[theme ?? "light"].background,
+        width: isWeb && !isMobile ? 400 : "100%",
+        alignSelf: "center",
       }}
     >
-      {/* Hide the header */}
+      {/* Header Setup */}
       <Stack.Screen
         options={{
           headerShown: true,
@@ -123,6 +240,7 @@ export default function ProfileScreen() {
           headerTitleStyle: { fontFamily: "PoppinsBold" },
           headerStyle: { backgroundColor: Colors[theme ?? "light"].background },
           headerTintColor: Colors[theme ?? "light"].text,
+          headerShadowVisible: false,
           headerRight(props) {
             return (
               <Pressable
@@ -147,6 +265,8 @@ export default function ProfileScreen() {
           },
         }}
       />
+
+      {/* User Profile Card */}
       <View
         style={{
           width: "95%",
@@ -159,6 +279,7 @@ export default function ProfileScreen() {
           shadowOpacity: 0.25,
           shadowRadius: 3.84,
           elevation: 5,
+          marginBottom: 20,
         }}
       >
         {/* Hash Icon */}
@@ -238,62 +359,9 @@ export default function ProfileScreen() {
           >
             <MonoText style={{ fontSize: 12 }}>{userData.fullname}</MonoText>
             <MonoText style={{ fontSize: 12 }}>{userData.email}</MonoText>
-            <MonoText style={{ fontSize: 12 }}>
-              DOB : {userData.date_of_birth}
-            </MonoText>
           </View>
         </View>
       </View>
-
-      {/* Update Button */}
-      {/* <Pressable
-        onPress={() => {
-          router.push("/edit-profile");
-        }}
-        style={{
-          backgroundColor: Colors[theme ?? "light"].text,
-          width: "50%",
-          padding: 10,
-          borderRadius: 15,
-          alignItems: "center",
-          justifyContent: "center",
-          marginTop: 20,
-        }}
-      >
-        <MonoText
-          style={{
-            borderRadius: 5,
-            color: Colors[theme ?? "light"].background,
-          }}
-        >
-          Update
-        </MonoText>
-      </Pressable> */}
-
-      {/* Reset Password Button */}
-      {/* <Pressable
-        onPress={() => {
-          router.push("/reset-password");
-        }}
-        style={{
-          backgroundColor: Colors[theme ?? "light"].text,
-          width: "50%",
-          padding: 10,
-          borderRadius: 15,
-          alignItems: "center",
-          justifyContent: "center",
-          marginTop: 20,
-        }}
-      >
-        <MonoText
-          style={{
-            borderRadius: 5,
-            color: Colors[theme ?? "light"].background,
-          }}
-        >
-          Reset Password
-        </MonoText>
-      </Pressable> */}
 
       {/* Logout Button */}
       <Pressable
@@ -305,7 +373,7 @@ export default function ProfileScreen() {
           borderRadius: 15,
           alignItems: "center",
           justifyContent: "center",
-          marginTop: 20,
+          marginVertical: 20,
         }}
       >
         <MonoText
@@ -317,6 +385,116 @@ export default function ProfileScreen() {
           Logout
         </MonoText>
       </Pressable>
+      {/* User Posts List */}
+      <View style={styles.postsContainer}>
+        <MonoText style={styles.postsTitle}>My Posts</MonoText>
+
+        {userPosts.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <MonoText>No posts yet</MonoText>
+          </View>
+        ) : (
+          <FlatList
+            data={userPosts}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <View
+                style={[
+                  styles.postItem,
+                  {
+                    backgroundColor: Colors[theme ?? "light"].background,
+                  },
+                ]}
+              >
+                <View style={styles.postContent}>
+                  {/* Post Image */}
+                  {item.image_url && (
+                    <Image
+                      source={{ uri: item.image_url }}
+                      style={styles.postImage}
+                      resizeMode="cover"
+                    />
+                  )}
+
+                  {/* Post Text */}
+                  <View style={styles.postTextContainer}>
+                    <MonoText style={styles.postText}>
+                      {truncateText(item.content)}
+                    </MonoText>
+                  </View>
+
+                  {/* Delete Button */}
+                  <Pressable
+                    onPress={() => handleDeletePost(item.id)}
+                    style={styles.deleteButton}
+                  >
+                    <TrashIcon
+                      size={20}
+                      color={Colors[theme ?? "light"].text}
+                    />
+                  </Pressable>
+                </View>
+              </View>
+            )}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+          />
+        )}
+      </View>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  postsContainer: {
+    width: "95%",
+    flex: 1,
+  },
+  postsTitle: {
+    fontSize: 16,
+    marginBottom: 15,
+  },
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+    backgroundColor: "transparent",
+  },
+  listContent: {
+    paddingBottom: 45,
+  },
+  postItem: {
+    borderRadius: 10,
+    marginBottom: 10,
+    padding: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+  },
+  postContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  postImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  postTextContainer: {
+    flex: 1,
+  },
+  postText: {
+    fontSize: 14,
+  },
+  deleteButton: {
+    padding: 8,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});

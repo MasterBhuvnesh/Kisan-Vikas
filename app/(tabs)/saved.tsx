@@ -6,6 +6,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  useWindowDimensions,
+  Platform,
 } from "react-native";
 import { View, Text } from "@/components/Themed";
 import { supabase } from "@/lib/supabase";
@@ -44,6 +46,9 @@ export default function SavedScreen() {
   const [imageLoading, setImageLoading] = useState<{ [key: string]: boolean }>(
     {}
   );
+  const { width } = useWindowDimensions();
+  const isMobile = width < 768;
+  const isWeb = Platform.OS === "web";
 
   const fetchSavedPosts = async () => {
     try {
@@ -218,7 +223,11 @@ export default function SavedScreen() {
     <View
       style={[
         styles.container,
-        { backgroundColor: Colors[theme ?? "light"].background },
+        {
+          backgroundColor: Colors[theme ?? "light"].background,
+          maxWidth: isWeb && !isMobile ? 400 : "100%",
+          alignSelf: isWeb && !isMobile ? "center" : "stretch",
+        },
       ]}
     >
       <Stack.Screen

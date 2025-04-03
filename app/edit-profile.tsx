@@ -28,7 +28,7 @@ import { useAuth } from "@/providers/AuthProvider";
 export default function EditScreen() {
   const theme = useColorScheme(); // Get the current theme (light/dark)
   const [fullname, setFullname] = useState(""); // State for user's full name
-  const [dateOfBirth, setDateOfBirth] = useState(""); // State for user's date of birth
+  // const [dateOfBirth, setDateOfBirth] = useState(""); // State for user's date of birth
   const [profilePic, setProfilePic] = useState<string | null>(null); // State for profile picture URL
   const [uploading, setUploading] = useState(false); // State to track upload progress
   const [userData, setUserData] = useState<any>(null); // State to store user data from the database
@@ -63,7 +63,7 @@ export default function EditScreen() {
         // Update state with fetched user data
         setUserData(data);
         setFullname(data.fullname || "");
-        setDateOfBirth(data.date_of_birth || "");
+        // setDateOfBirth(data.date_of_birth || "");
         setProfilePic(data.profile_pic || null);
       }
     };
@@ -224,24 +224,24 @@ export default function EditScreen() {
 
   // Save user data to the database
   const handleSave = async () => {
-    if (!fullname || !dateOfBirth) {
-      alert("Error : Please fill all fields"); // Validate required fields
-      return;
-    }
+    // if (!fullname || !dateOfBirth) {
+    //   alert("Error : Please fill all fields"); // Validate required fields
+    //   return;
+    // }
 
-    // Validate date format (YYYY-MM-DD)
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!dateRegex.test(dateOfBirth)) {
-      if (Platform.OS === "android") {
-        ToastAndroid.show(
-          "Please enter a valid date in the format YYYY-MM-DD",
-          ToastAndroid.SHORT
-        );
-      } else if (Platform.OS === "windows") {
-        alert("Error : Please enter a valid date in the format YYYY-MM-DD");
-      }
-      return;
-    }
+    // // Validate date format (YYYY-MM-DD)
+    // const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    // if (!dateRegex.test(dateOfBirth)) {
+    //   if (Platform.OS === "android") {
+    //     ToastAndroid.show(
+    //       "Please enter a valid date in the format YYYY-MM-DD",
+    //       ToastAndroid.SHORT
+    //     );
+    //   } else if (Platform.OS === "windows") {
+    //     alert("Error : Please enter a valid date in the format YYYY-MM-DD");
+    //   }
+    //   return;
+    // }
 
     const {
       data: { user },
@@ -261,7 +261,7 @@ export default function EditScreen() {
         email: user.email,
         fullname,
         profile_pic: profilePic,
-        date_of_birth: dateOfBirth,
+        // date_of_birth: dateOfBirth,
       },
     ]);
 
@@ -475,7 +475,7 @@ export default function EditScreen() {
               marginBottom: 15,
             }}
           >
-            <MonoText
+            {/* <MonoText
               style={{
                 fontSize: 12,
                 marginRight: 10,
@@ -501,7 +501,7 @@ export default function EditScreen() {
                 fontFamily: "Poppins",
                 color: Colors[theme ?? "light"].text,
               }}
-            />
+            /> */}
           </View>
         </View>
       </View>
