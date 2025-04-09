@@ -19,26 +19,32 @@ import { Image } from "expo-image";
 import { MonoText } from "@/components/StyledText";
 import { FontAwesome } from "@expo/vector-icons";
 import dayjs from "dayjs";
+import { useLanguage } from "@/context/languageContext";
+
+interface User {
+  id: string;
+  fullname: string;
+  fullname_Hindi: string | null;
+  username: string;
+  profile_pic: string | null;
+}
 
 interface Post {
   id: string;
   content: string | null;
+  content_Hindi: string | null;
   image_url: string | null;
   created_at: string;
   updated_at: string;
   user_id: string;
-  user: {
-    id: string;
-    fullname: string;
-    username: string;
-    profile_pic: string | null;
-  };
+  user: User;
   is_saved: boolean;
 }
 
 const DEFAULT_PROFILE_PIC = require("@/assets/images/user_pic.jpg");
 
 export default function SavedScreen() {
+  const { language } = useLanguage();
   const theme = useColorScheme();
   const { session, loading } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
@@ -83,6 +89,7 @@ export default function SavedScreen() {
           user:user_id (
             id,
             fullname,
+            fullname_Hindi,
             username,
             profile_pic
           )
@@ -148,6 +155,12 @@ export default function SavedScreen() {
 
   const handleImageError = (postId: string) => {
     setImageLoading((prev) => ({ ...prev, [postId]: false }));
+  };
+
+  const getLocalizedName = (user: User) => {
+    return language === "hi" && user.fullname_Hindi
+      ? user.fullname_Hindi
+      : user.fullname;
   };
 
   useEffect(() => {
@@ -232,7 +245,7 @@ export default function SavedScreen() {
     >
       <Stack.Screen
         options={{
-          title: "Saved Posts",
+          title: language === "hi" ? "सेव किए गए पोस्ट" : "Saved Posts",
           headerTitleStyle: { fontFamily: "PoppinsBold" },
           headerStyle: {
             backgroundColor: Colors[theme ?? "light"].background,
@@ -253,7 +266,7 @@ export default function SavedScreen() {
               },
             ]}
           >
-            {/* User info row */}
+            {/* User Info */}
             <View style={styles.userRow}>
               <View style={styles.profilePicContainer}>
                 {imageLoading[item.id] && (
@@ -276,7 +289,7 @@ export default function SavedScreen() {
               </View>
               <View style={styles.userInfo}>
                 <Text style={styles.userName}>
-                  {item.user.fullname || item.user.username}
+                  {getLocalizedName(item.user)}
                 </Text>
                 <Text style={styles.postTime}>
                   {dayjs(item.created_at).format("MMM D, YYYY [at] h:mm A")}
@@ -291,7 +304,7 @@ export default function SavedScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Post content */}
+            {/* Post Content */}
             {item.image_url && (
               <Image
                 source={{ uri: item.image_url }}
@@ -306,7 +319,9 @@ export default function SavedScreen() {
                   { color: Colors[theme ?? "light"].text },
                 ]}
               >
-                {item.content}
+                {language === "hi" && item.content_Hindi
+                  ? item.content_Hindi
+                  : item.content}
               </MonoText>
             )}
           </View>
@@ -319,7 +334,11 @@ export default function SavedScreen() {
         }
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <MonoText>No saved posts yet. Save some to see them here!</MonoText>
+            <MonoText>
+              {language === "hi"
+                ? "अभी तक कोई सेव किए गए पोस्ट नहीं हैं। उन्हें यहां देखने के लिए कुछ सेव करें!"
+                : "No saved posts yet. Save some to see them here!"}
+            </MonoText>
           </View>
         }
         contentContainerStyle={styles.listContent}

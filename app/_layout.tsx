@@ -12,6 +12,7 @@ import "react-native-reanimated";
 import { useColorScheme } from "@/components/useColorScheme";
 import { StatusBar } from "expo-status-bar";
 import { AuthProvider } from "@/providers/AuthProvider";
+import { LanguageProvider } from "@/context/languageContext";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -56,25 +57,27 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <AuthProvider>
-        <StatusBar style="auto" />
-        <Stack>
-          <Stack.Screen
-            name="(tabs)"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="info"
-            options={{ presentation: "modal" }}
-          />
-          <Stack.Screen
-            name="edit-profile"
-            options={{ presentation: "modal", headerShown: false }}
-          />
-          <Stack.Screen name="add-post" />
-        </Stack>
-      </AuthProvider>
-    </ThemeProvider>
+    <LanguageProvider>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <AuthProvider>
+          <StatusBar style="auto" />
+          <Stack>
+            <Stack.Screen
+              name="(tabs)"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="info"
+              options={{ presentation: "modal" }}
+            />
+            <Stack.Screen
+              name="edit-profile"
+              options={{ presentation: "modal", headerShown: false }}
+            />
+            <Stack.Screen name="add-post" />
+          </Stack>
+        </AuthProvider>
+      </ThemeProvider>
+    </LanguageProvider>
   );
 }

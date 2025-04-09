@@ -27,6 +27,7 @@ export async function POST(req: Request) {
 
     You are a writing assistant. Your task is to enhance the given content by making it more engaging and interesting and correcting any grammatical errors.
     just focus on the content and do not add any additional information or context. just only enhance the content.and give the output in the same format as the input.
+    also write it in hindi language.
     here is the content:
 ${content}`;
 

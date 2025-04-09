@@ -18,10 +18,12 @@ import { useColorScheme } from "@/components/useColorScheme";
 import {
   Cog6ToothIcon,
   HashtagIcon,
+  LanguageIcon,
   TrashIcon,
 } from "react-native-heroicons/outline";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "@/providers/AuthProvider";
+import { useLanguage } from "@/context/languageContext";
 
 const handleLogout = async () => {
   const { error } = await supabase.auth.signOut();
@@ -33,6 +35,7 @@ const handleLogout = async () => {
 };
 
 export default function ProfileScreen() {
+  const { language, setLanguage } = useLanguage();
   const theme = useColorScheme();
   const [userData, setUserData] = useState<any>(null);
   const [userPosts, setUserPosts] = useState<any[]>([]);
@@ -231,11 +234,10 @@ export default function ProfileScreen() {
         alignSelf: "center",
       }}
     >
-      {/* Header Setup */}
       <Stack.Screen
         options={{
           headerShown: true,
-          title: "Profile",
+          title: "प्रोफ़ाइल",
           headerTitleAlign: "left",
           headerTitleStyle: { fontFamily: "PoppinsBold" },
           headerStyle: { backgroundColor: Colors[theme ?? "light"].background },
@@ -362,36 +364,73 @@ export default function ProfileScreen() {
           </View>
         </View>
       </View>
-
-      {/* Logout Button */}
-      <Pressable
-        onPress={handleLogout}
+      {/* Buttons Container */}
+      <View
         style={{
-          backgroundColor: Colors[theme ?? "light"].text,
-          width: "50%",
-          padding: 10,
-          borderRadius: 15,
-          alignItems: "center",
-          justifyContent: "center",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          width: "90%",
           marginVertical: 20,
         }}
       >
-        <MonoText
+        {/* Logout Button */}
+        <Pressable
+          onPress={handleLogout}
           style={{
-            borderRadius: 5,
-            color: Colors[theme ?? "light"].background,
+            backgroundColor: Colors[theme ?? "light"].text,
+            width: "48%",
+            padding: 10,
+            borderRadius: 15,
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          Logout
-        </MonoText>
-      </Pressable>
+          <MonoText
+            style={{
+              borderRadius: 5,
+              color: Colors[theme ?? "light"].background,
+            }}
+          >
+            {language === "en" ? "Logout" : "लॉगआउट"}
+          </MonoText>
+        </Pressable>
+
+        {/* Language Button */}
+        <Pressable
+          onPress={() => setLanguage(language === "en" ? "hi" : "en")}
+          style={{
+            backgroundColor: Colors[theme ?? "light"].text,
+            width: "48%",
+            padding: 10,
+            borderRadius: 15,
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection: "row",
+            gap: 5,
+          }}
+        >
+          <LanguageIcon
+            size={20}
+            color={Colors[theme ?? "light"].background}
+          />
+          <MonoText
+            style={{
+              borderRadius: 5,
+              color: Colors[theme ?? "light"].background,
+            }}
+          >
+            {language === "en" ? "हिंदी" : "English"}
+          </MonoText>
+        </Pressable>
+      </View>
+
       {/* User Posts List */}
       <View style={styles.postsContainer}>
-        <MonoText style={styles.postsTitle}>My Posts</MonoText>
+        <MonoText style={styles.postsTitle}>मेरे पोस्ट</MonoText>
 
         {userPosts.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <MonoText>No posts yet</MonoText>
+            <MonoText>अभी तक कोई पोस्ट नहीं</MonoText>
           </View>
         ) : (
           <FlatList

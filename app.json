@@ -52,8 +52,18 @@
     },
     "extra": {
       "router": {
-        "origin": false
+        "origin": "https://kisanvikas.expo.app/"
+      },
+      "eas": {
+        "projectId": "0ff8a39e-95bf-4809-99a5-1fab773d8c68"
       }
+    },
+    "owner": "bhuvnesh_verma",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/0ff8a39e-95bf-4809-99a5-1fab773d8c68"
     }
   }
 }

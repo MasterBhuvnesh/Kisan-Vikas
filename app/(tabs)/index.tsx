@@ -27,33 +27,34 @@ import {
   ChevronDownIcon,
 } from "react-native-heroicons/outline";
 import { Platform } from "react-native";
+import { useLanguage } from "@/context/languageContext";
+
+interface User {
+  id: string;
+  fullname: string;
+  fullname_Hindi: string | null;
+  username: string;
+  profile_pic: string | null;
+}
 
 interface Comment {
   id: string;
   content: string;
+  content_Hindi: string | null;
   created_at: string;
   user_id: string;
-  user: {
-    id: string;
-    fullname: string;
-    username: string;
-    profile_pic: string | null;
-  };
+  user: User;
 }
 
 interface Post {
   id: string;
   content: string | null;
+  content_Hindi: string | null;
   image_url: string | null;
   created_at: string;
   updated_at: string;
   user_id: string;
-  user: {
-    id: string;
-    fullname: string;
-    username: string;
-    profile_pic: string | null;
-  };
+  user: User;
   is_saved?: boolean;
   comments?: Comment[];
   showComments?: boolean;
@@ -62,6 +63,7 @@ interface Post {
 const DEFAULT_PROFILE_PIC = require("@/assets/images/user_pic.jpg");
 
 export default function HomeScreen() {
+  const { language } = useLanguage();
   const theme = useColorScheme();
   const { session } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
@@ -87,6 +89,7 @@ export default function HomeScreen() {
           user:user_id (
             id,
             fullname,
+            fullname_Hindi,
             username,
             profile_pic
           )`
@@ -156,12 +159,14 @@ export default function HomeScreen() {
           `
           id,
           content,
+          content_Hindi, 
           created_at,
           post_id,
           user_id,
           user:user_id (
             id,
             fullname,
+            fullname_Hindi,
             username,
             profile_pic
           )
@@ -185,6 +190,7 @@ export default function HomeScreen() {
         commentsByPostId[postId].push({
           id: comment.id,
           content: comment.content,
+          content_Hindi: comment.content_Hindi,
           created_at: comment.created_at,
           user_id: comment.user_id,
           user: Array.isArray(comment.user) ? comment.user[0] : comment.user,
@@ -249,6 +255,12 @@ export default function HomeScreen() {
     );
   };
 
+  const getLocalizedName = (user: User, language: string) => {
+    return language === "hi" && user.fullname_Hindi
+      ? user.fullname_Hindi
+      : user.fullname;
+  };
+
   const addComment = async (postId: string) => {
     if (!session?.user.id) {
       Alert.alert("Please Login", "You need to log in to comment");
@@ -271,10 +283,12 @@ export default function HomeScreen() {
       }).select(`
         id,
         content,
+        content_Hindi,
         created_at,
         user:user_id (
           id,
           fullname,
+          fullname_Hindi,
           username,
           profile_pic
         )
@@ -286,6 +300,7 @@ export default function HomeScreen() {
         const newComment: Comment = {
           id: data[0].id,
           content: data[0].content,
+          content_Hindi: data[0].content_Hindi,
           created_at: data[0].created_at,
           user_id: session.user.id,
           user: Array.isArray(data[0].user) ? data[0].user[0] : data[0].user,
@@ -368,32 +383,44 @@ export default function HomeScreen() {
         },
       ]}
     >
-      <Stack.Screen
-        options={{
-          title: "Kisan Vikas",
-          headerTitleStyle: { fontFamily: "PoppinsBold" },
-          headerStyle: {
-            backgroundColor: Colors[theme ?? "light"].background,
-          },
-          headerRight: () =>
-            session ? (
-              <Link
-                href="/add-post"
-                asChild
-              >
-                <Pressable>
-                  {({ pressed }) => (
-                    <PlusCircleIcon
-                      size={25}
-                      color={Colors[theme ?? "light"].text}
-                      style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                    />
-                  )}
-                </Pressable>
-              </Link>
-            ) : null,
-        }}
-      />
+      {isWeb ? (
+        <Stack.Screen
+          options={{
+            title: language === "en" ? "Kisan Vikas" : "किसान विकास",
+            headerTitleStyle: { fontFamily: "PoppinsBold" },
+            headerStyle: {
+              backgroundColor: Colors[theme ?? "light"].background,
+            },
+          }}
+        />
+      ) : (
+        <Stack.Screen
+          options={{
+            title: language === "en" ? "Kisan Vikas" : "किसान विकास",
+            headerTitleStyle: { fontFamily: "PoppinsBold" },
+            headerStyle: {
+              backgroundColor: Colors[theme ?? "light"].background,
+            },
+            headerRight: () =>
+              session ? (
+                <Link
+                  href="/add-post"
+                  asChild
+                >
+                  <Pressable>
+                    {({ pressed }) => (
+                      <PlusCircleIcon
+                        size={25}
+                        color={Colors[theme ?? "light"].text}
+                        style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                      />
+                    )}
+                  </Pressable>
+                </Link>
+              ) : null,
+          }}
+        />
+      )}
 
       <FlatList
         data={posts}
@@ -429,7 +456,7 @@ export default function HomeScreen() {
               </View>
               <View style={styles.userInfo}>
                 <Text style={styles.userName}>
-                  {item.user.fullname || item.user.username}
+                  {getLocalizedName(item.user, language) || item.user.username}
                 </Text>
                 <Text style={styles.postTime}>
                   {dayjs(item.created_at).format("MMM D, YYYY [at] h:mm A")}
@@ -466,11 +493,13 @@ export default function HomeScreen() {
                   { color: Colors[theme ?? "light"].text },
                 ]}
               >
-                {item.content}
+                {language === "hi" && item.content_Hindi
+                  ? item.content_Hindi
+                  : item.content}
               </MonoText>
             )}
 
-            {/* Comment section */}
+            {/* Comment Section */}
             <View style={styles.commentSection}>
               <TouchableOpacity
                 style={styles.commentButton}
@@ -482,10 +511,14 @@ export default function HomeScreen() {
                 />
                 <Text style={styles.commentButtonText}>
                   {item.comments && item.comments.length > 0
-                    ? `${item.comments.length} Comment${
-                        item.comments.length === 1 ? "" : "s"
+                    ? `${item.comments.length} ${
+                        language === "en"
+                          ? `comment${item.comments.length === 1 ? "" : "s"}`
+                          : `टिप्पणी${item.comments.length === 1 ? "" : "याँ"}`
                       }`
-                    : "Comments"}
+                    : language === "en"
+                    ? "Comments"
+                    : "टिप्पणियाँ"}
                 </Text>
                 {item.showComments ? (
                   <ChevronUpIcon
@@ -502,7 +535,7 @@ export default function HomeScreen() {
 
               {item.showComments && (
                 <View style={styles.commentsContainer}>
-                  {/* Comments list */}
+                  {/* List of Comments */}
                   {item.comments && item.comments.length > 0 ? (
                     item.comments.map((comment) => (
                       <View
@@ -522,10 +555,13 @@ export default function HomeScreen() {
                         </View>
                         <View style={styles.commentContent}>
                           <Text style={styles.commentUserName}>
-                            {comment.user.fullname || comment.user.username}
+                            {getLocalizedName(comment.user, language) ||
+                              comment.user.username}
                           </Text>
                           <MonoText style={styles.commentText}>
-                            {comment.content}
+                            {language === "hi" && comment.content_Hindi
+                              ? comment.content_Hindi
+                              : comment.content}
                           </MonoText>
                           <Text style={styles.commentTime}>
                             {dayjs(comment.created_at).format(
@@ -536,10 +572,14 @@ export default function HomeScreen() {
                       </View>
                     ))
                   ) : (
-                    <Text style={styles.noCommentsText}>No comments yet</Text>
+                    <Text style={styles.noCommentsText}>
+                      {language === "en"
+                        ? "No comments yet"
+                        : "अभी तक कोई टिप्पणी नहीं"}
+                    </Text>
                   )}
 
-                  {/* Add comment input */}
+                  {/* Add Comment Input */}
                   {session ? (
                     <View style={styles.addCommentContainer}>
                       <TextInput
@@ -547,7 +587,11 @@ export default function HomeScreen() {
                           styles.commentInput,
                           { color: Colors[theme ?? "light"].text },
                         ]}
-                        placeholder="Add a comment..."
+                        placeholder={
+                          language === "en"
+                            ? "Add a comment..."
+                            : "एक टिप्पणी जोड़ें..."
+                        }
                         placeholderTextColor={Colors[theme ?? "light"].text}
                         value={commentText[item.id] || ""}
                         onChangeText={(text) =>
@@ -575,14 +619,16 @@ export default function HomeScreen() {
                               { color: Colors[theme ?? "light"].background },
                             ]}
                           >
-                            Post
+                            {language === "en" ? "Post" : "पोस्ट करें"}
                           </Text>
                         )}
                       </TouchableOpacity>
                     </View>
                   ) : (
                     <Text style={styles.loginPrompt}>
-                      Please login to add comments
+                      {language === "en"
+                        ? "Please log in to add a comment"
+                        : "कृपया टिप्पणी जोड़ने के लिए लॉगिन करें"}
                     </Text>
                   )}
                 </View>
@@ -599,8 +645,17 @@ export default function HomeScreen() {
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <MonoText>
-              No posts yet.{" "}
-              {session ? "Create the first one!" : "Login to create posts."}
+              {language === "en"
+                ? `No posts yet. ${
+                    session
+                      ? "Be the first to post!"
+                      : "Log in to create a post."
+                  }`
+                : `अभी तक कोई पोस्ट नहीं है। ${
+                    session
+                      ? "पहला पोस्ट बनाएं!"
+                      : "पोस्ट बनाने के लिए लॉगिन करें।"
+                  }`}
             </MonoText>
           </View>
         }
