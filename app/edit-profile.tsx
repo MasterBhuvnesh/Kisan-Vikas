@@ -24,8 +24,10 @@ import {
   PhotoIcon,
 } from "react-native-heroicons/outline"; // Icon for upload button
 import { useAuth } from "@/providers/AuthProvider";
+import { useLanguage } from "@/context/languageContext";
 
 export default function EditScreen() {
+  const { language } = useLanguage();
   const theme = useColorScheme(); // Get the current theme (light/dark)
   const [fullname, setFullname] = useState(""); // State for user's full name
   // const [dateOfBirth, setDateOfBirth] = useState(""); // State for user's date of birth
@@ -303,7 +305,9 @@ export default function EditScreen() {
             headerTintColor: Colors[theme ?? "light"].text,
           }}
         />
-        <MonoText>Loading...</MonoText>
+        <MonoText>
+          {language === "en" ? "Loading..." : "लोड हो रहा है..."}
+        </MonoText>
       </View>
     );
   }
@@ -447,7 +451,7 @@ export default function EditScreen() {
                 width: "30%",
               }}
             >
-              Full Name:
+              {language === "en" ? "Full Name:" : "पूरा नाम:"}
             </MonoText>
             <TextInput
               value={fullname}
@@ -518,14 +522,14 @@ export default function EditScreen() {
           marginTop: isMobile ? 15 : 20, // Adjust margin for mobile
         }}
       >
-        <MonoText
+        <PoppinsText
           style={{
             borderRadius: 5,
             color: Colors[theme ?? "light"].background,
           }}
         >
-          Save
-        </MonoText>
+          {language === "en" ? "Save" : "सहेजें"}
+        </PoppinsText>
       </Pressable>
     </View>
   );

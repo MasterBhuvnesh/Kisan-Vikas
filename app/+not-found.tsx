@@ -5,14 +5,17 @@ import { Text, View } from "@/components/Themed";
 import { PoppinsText } from "@/components/StyledText";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
+import { useLanguage } from "@/context/languageContext";
 
 export default function NotFoundScreen() {
   const theme = useColorScheme();
+
+  const { language } = useLanguage();
   return (
     <>
       <Stack.Screen
         options={{
-          title: "OOPs! ",
+          title: language === "en" ? "OOPs!" : "ओह!",
           headerTitleStyle: { fontFamily: "SpaceMono" },
           headerStyle: { backgroundColor: Colors[theme ?? "light"].background },
           headerTintColor: Colors[theme ?? "light"].text,
@@ -27,7 +30,9 @@ export default function NotFoundScreen() {
         }}
       >
         <PoppinsText style={{ fontSize: 16 }}>
-          This screen doesn't exist.
+          {language === "en"
+            ? "This screen doesn't exist."
+            : "यह स्क्रीन मौजूद नहीं है।"}
         </PoppinsText>
 
         <TouchableOpacity
@@ -47,7 +52,7 @@ export default function NotFoundScreen() {
               color: Colors[theme ?? "light"].background,
             }}
           >
-            Go to Home Page
+            {language === "en" ? "Go to Home Page" : "मुख्य पृष्ठ पर जाएं"}
           </PoppinsText>
         </TouchableOpacity>
       </View>

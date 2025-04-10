@@ -13,8 +13,10 @@ import { PoppinsBoldText, PoppinsText } from "@/components/StyledText";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { ToastAndroid } from "react-native";
+import { useLanguage } from "@/context/languageContext"; // Add this import
 
 export default function OTPVerification() {
+  const { language } = useLanguage(); // Add this
   const params = useLocalSearchParams();
   const email = params.email as string;
   const theme = useColorScheme() ?? "light";
@@ -24,9 +26,16 @@ export default function OTPVerification() {
   const handleVerifyOTP = async () => {
     if (!email) {
       if (Platform.OS === "android") {
-        ToastAndroid.show("Email is required.", ToastAndroid.LONG);
+        ToastAndroid.show(
+          language === "en" ? "Email is required." : "ईमेल आवश्यक है",
+          ToastAndroid.LONG
+        );
       } else {
-        alert("Error : Email is required.");
+        alert(
+          language === "en"
+            ? "Error: Email is required."
+            : "त्रुटि: ईमेल आवश्यक है"
+        );
       }
       return;
     }
@@ -42,7 +51,11 @@ export default function OTPVerification() {
       if (Platform.OS === "android") {
         ToastAndroid.show(error.message, ToastAndroid.LONG);
       } else {
-        alert("Error : " + error.message);
+        alert(
+          language === "en"
+            ? "Error: " + error.message
+            : "त्रुटि: " + error.message
+        );
       }
     } else {
       router.replace("/edit-profile");
@@ -63,16 +76,20 @@ export default function OTPVerification() {
       <PoppinsBoldText
         style={{ fontSize: 28, marginVertical: 10, textAlign: "center" }}
       >
-        Verify Your Email
+        {language === "en" ? "Verify Your Email" : "अपना ईमेल सत्यापित करें"}
       </PoppinsBoldText>
       <PoppinsText
         style={{ fontSize: 12, marginBottom: 40, textAlign: "center" }}
       >
-        Enter the OTP sent to your email.
+        {language === "en"
+          ? "Enter the OTP sent to your email."
+          : "अपने ईमेल पर भेजे गए OTP को दर्ज करें"}
       </PoppinsText>
 
       <TextInput
-        placeholder="Enter your OTP"
+        placeholder={
+          language === "en" ? "Enter your OTP" : "अपना OTP दर्ज करें"
+        }
         value={otp}
         onChangeText={setOtp}
         placeholderTextColor={Colors[theme ?? "light"].gray}
@@ -112,7 +129,13 @@ export default function OTPVerification() {
             borderRadius: 5,
           }}
         >
-          {loading ? "Loading..." : "Verify OTP"}
+          {loading
+            ? language === "en"
+              ? "Loading..."
+              : "लोड हो रहा है..."
+            : language === "en"
+            ? "Verify OTP"
+            : "OTP सत्यापित करें"}
         </PoppinsText>
       </Pressable>
     </View>

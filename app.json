@@ -20,7 +20,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.bhuvnesh_verma.kisanvikas"
     },
     "web": {
       "bundler": "metro",
@@ -51,14 +52,10 @@
       "typedRoutes": true
     },
     "extra": {
-      "router": {
-        "origin": "https://kisanvikas.expo.app/"
-      },
       "eas": {
         "projectId": "0ff8a39e-95bf-4809-99a5-1fab773d8c68"
       }
     },
-    "owner": "bhuvnesh_verma",
     "runtimeVersion": {
       "policy": "appVersion"
     },

@@ -9,8 +9,10 @@ import { useAuth } from "@/providers/AuthProvider";
 import { Text, View } from "@/components/Themed";
 import { Platform } from "react-native";
 import { ToastAndroid } from "react-native";
+import { useLanguage } from "@/context/languageContext"; // Add this import
 
 export default function OTPVerification() {
+  const { language } = useLanguage(); // Add this
   const user = useAuth();
   const email = user.session?.user.email;
   const theme = useColorScheme() ?? "light";
@@ -29,9 +31,16 @@ export default function OTPVerification() {
   const handleResetPassword = async () => {
     if (!email) {
       if (Platform.OS === "android") {
-        ToastAndroid.show("Email is required.", ToastAndroid.LONG);
+        ToastAndroid.show(
+          language === "en" ? "Email is required." : "ईमेल आवश्यक है",
+          ToastAndroid.LONG
+        );
       } else {
-        alert("Error : Email is required.");
+        alert(
+          language === "en"
+            ? "Error: Email is required."
+            : "त्रुटि: ईमेल आवश्यक है"
+        );
       }
       return;
     }
@@ -40,11 +49,17 @@ export default function OTPVerification() {
     if (!Object.values(passwordValidation).every((rule) => rule)) {
       if (Platform.OS === "android") {
         ToastAndroid.show(
-          "Please ensure your password meets all requirements.",
+          language === "en"
+            ? "Please ensure your password meets all requirements."
+            : "कृपया सुनिश्चित करें कि आपका पासवर्ड सभी आवश्यकताओं को पूरा करता है",
           ToastAndroid.LONG
         );
       } else {
-        alert("Error : Please ensure your password meets all requirements.");
+        alert(
+          language === "en"
+            ? "Error: Please ensure your password meets all requirements."
+            : "त्रुटि: कृपया सुनिश्चित करें कि आपका पासवर्ड सभी आवश्यकताओं को पूरा करता है"
+        );
       }
       return;
     }
@@ -56,13 +71,26 @@ export default function OTPVerification() {
       if (Platform.OS === "android") {
         ToastAndroid.show(error.message, ToastAndroid.LONG);
       } else {
-        alert("Error : " + error.message);
+        alert(
+          language === "en"
+            ? "Error: " + error.message
+            : "त्रुटि: " + error.message
+        );
       }
     } else {
       if (Platform.OS === "android") {
-        ToastAndroid.show("Password updated successfully!", ToastAndroid.LONG);
+        ToastAndroid.show(
+          language === "en"
+            ? "Password updated successfully!"
+            : "पासवर्ड सफलतापूर्वक अपडेट किया गया!",
+          ToastAndroid.LONG
+        );
       } else {
-        alert("Success : Password updated successfully!");
+        alert(
+          language === "en"
+            ? "Success: Password updated successfully!"
+            : "सफलता: पासवर्ड सफलतापूर्वक अपडेट किया गया!"
+        );
       }
       router.replace("/");
     }
@@ -75,16 +103,18 @@ export default function OTPVerification() {
       <PoppinsBoldText
         style={{ fontSize: 28, marginVertical: 10, textAlign: "center" }}
       >
-        Reset Password
+        {language === "en" ? "Reset Password" : "पासवर्ड रीसेट करें"}
       </PoppinsBoldText>
       <PoppinsText
         style={{ fontSize: 12, marginBottom: 40, textAlign: "center" }}
       >
-        Enter your new password.
+        {language === "en"
+          ? "Enter your new password."
+          : "अपना नया पासवर्ड दर्ज करें"}
       </PoppinsText>
 
       <TextInput
-        placeholder="New Password"
+        placeholder={language === "en" ? "New Password" : "नया पासवर्ड"}
         value={password}
         onChangeText={setPassword}
         placeholderTextColor={Colors[theme ?? "light"].gray}
@@ -118,7 +148,8 @@ export default function OTPVerification() {
             },
           ]}
         >
-          {passwordValidation.hasUppercase ? "👍" : "🔒"} Uppercase letter
+          {passwordValidation.hasUppercase ? "👍" : "🔒"}{" "}
+          {language === "en" ? "Uppercase letter" : "बड़ा अक्षर"}
         </Text>
         <Text
           style={[
@@ -129,7 +160,8 @@ export default function OTPVerification() {
             },
           ]}
         >
-          {passwordValidation.hasLowercase ? "👍" : "🔒"} Lowercase letter
+          {passwordValidation.hasLowercase ? "👍" : "🔒"}{" "}
+          {language === "en" ? "Lowercase letter" : "छोटा अक्षर"}
         </Text>
         <Text
           style={[
@@ -140,7 +172,8 @@ export default function OTPVerification() {
             },
           ]}
         >
-          {passwordValidation.hasNumber ? "👍" : "🔒"} Number
+          {passwordValidation.hasNumber ? "👍" : "🔒"}{" "}
+          {language === "en" ? "Number" : "संख्या"}
         </Text>
         <Text
           style={[
@@ -151,8 +184,10 @@ export default function OTPVerification() {
             },
           ]}
         >
-          {passwordValidation.hasSpecialChar ? "👍" : "🔒"} Special character
-          (e.g., !?&lt;&gt;@#$%)
+          {passwordValidation.hasSpecialChar ? "👍" : "🔒"}{" "}
+          {language === "en"
+            ? "Special character (e.g., !?<>@#$%)"
+            : "विशेष वर्ण (जैसे, !?<>@#$%)"}
         </Text>
         <Text
           style={[
@@ -163,7 +198,8 @@ export default function OTPVerification() {
             },
           ]}
         >
-          {passwordValidation.hasMinLength ? "👍" : "🔒"} 8 characters or more
+          {passwordValidation.hasMinLength ? "👍" : "🔒"}{" "}
+          {language === "en" ? "8 characters or more" : "8 वर्ण या अधिक"}
         </Text>
       </View>
 
@@ -190,7 +226,13 @@ export default function OTPVerification() {
             borderRadius: 5,
           }}
         >
-          {loading ? "Loading..." : "Reset Password"}
+          {loading
+            ? language === "en"
+              ? "Loading..."
+              : "लोड हो रहा है..."
+            : language === "en"
+            ? "Reset Password"
+            : "पासवर्ड रीसेट करें"}
         </PoppinsText>
       </Pressable>
     </View>
