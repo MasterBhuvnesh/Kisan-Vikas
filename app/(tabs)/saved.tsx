@@ -8,11 +8,12 @@ import {
   ActivityIndicator,
   useWindowDimensions,
   Platform,
+  Pressable,
 } from "react-native";
 import { View, Text } from "@/components/Themed";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/providers/AuthProvider";
-import { Redirect, Stack } from "expo-router";
+import { Redirect, router, Stack } from "expo-router";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { Image } from "expo-image";
@@ -20,6 +21,10 @@ import { MonoText } from "@/components/StyledText";
 import { FontAwesome } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import { useLanguage } from "@/context/languageContext";
+import {
+  Cog6ToothIcon,
+  InformationCircleIcon,
+} from "react-native-heroicons/outline";
 
 interface User {
   id: string;
@@ -249,6 +254,28 @@ export default function SavedScreen() {
           headerTitleStyle: { fontFamily: "PoppinsBold" },
           headerStyle: {
             backgroundColor: Colors[theme ?? "light"].background,
+          },
+          headerRight(props) {
+            return (
+              <Pressable
+                onPress={() => {
+                  router.push("/info");
+                }}
+                style={{
+                  padding: 10,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "transparent",
+                  borderRadius: 50,
+                  marginRight: 10,
+                }}
+              >
+                <InformationCircleIcon
+                  size={25}
+                  color={Colors[theme ?? "light"].text}
+                />
+              </Pressable>
+            );
           },
         }}
       />

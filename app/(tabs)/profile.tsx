@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { View } from "@/components/Themed";
 import { MonoText } from "@/components/StyledText";
-import { Redirect, router, Stack } from "expo-router";
+import { Link, Redirect, router, Stack } from "expo-router";
 import { Image } from "expo-image";
 import { supabase } from "@/lib/supabase";
 import Colors from "@/constants/Colors";

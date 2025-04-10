@@ -66,10 +66,7 @@ function RootLayoutNav() {
               name="(tabs)"
               options={{ headerShown: false }}
             />
-            <Stack.Screen
-              name="info"
-              options={{ presentation: "modal" }}
-            />
+            <Stack.Screen name="info" />
             <Stack.Screen
               name="edit-profile"
               options={{ presentation: "modal", headerShown: false }}
