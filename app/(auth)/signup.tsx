@@ -15,15 +15,18 @@ import { View } from "@/components/Themed";
 import { PoppinsBoldText, PoppinsText } from "@/components/StyledText";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
+import { LanguageIcon } from "react-native-heroicons/outline";
+import { useLanguage } from "@/context/languageContext";
 
-export default function Login() {
+export default function Signup() {
+  const { language, setLanguage } = useLanguage();
   const theme = useColorScheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { width } = useWindowDimensions();
 
-  const isMobile = width < 768; // Adjust the breakpoint as needed
+  const isMobile = width < 768;
 
   const handleSignup = async () => {
     setLoading(true);
@@ -34,9 +37,18 @@ export default function Login() {
 
     if (signUpError) {
       if (Platform.OS === "android") {
-        ToastAndroid.show(signUpError.message, ToastAndroid.LONG);
+        ToastAndroid.show(
+          language === "hi"
+            ? signUpError.message
+            : "त्रुटि: " + signUpError.message,
+          ToastAndroid.LONG
+        );
       } else {
-        alert("Error : " + signUpError.message);
+        alert(
+          language === "hi"
+            ? "Error: " + signUpError.message
+            : "त्रुटि: " + signUpError.message
+        );
       }
       setLoading(false);
       return;
@@ -77,7 +89,9 @@ export default function Login() {
             textAlign: "center",
           }}
         >
-          Create a Kisan Vikas Account
+          {language === "hi"
+            ? "किसान विकास में खाता बनाएं"
+            : "Create a Kisan Vikas Account"}
         </PoppinsBoldText>
         <PoppinsText
           style={{
@@ -86,14 +100,20 @@ export default function Login() {
             textAlign: "center",
           }}
         >
-          Enter your username and password to continue.
+          {language === "hi"
+            ? "जारी रखने के लिए अपना ईमेल और पासवर्ड दर्ज करें"
+            : "Enter your email and password to continue"}
         </PoppinsText>
 
         <PoppinsText style={{ fontSize: 12, marginBottom: 10 }}>
-          Email Address Below 👇
+          {language === "hi" ? "ईमेल पता नीचे 👇" : "Email Address Below 👇"}
         </PoppinsText>
         <TextInput
-          placeholder="Enter your email address"
+          placeholder={
+            language === "hi"
+              ? "अपना ईमेल पता दर्ज करें"
+              : "Enter your email address"
+          }
           value={email}
           onChangeText={setEmail}
           placeholderTextColor={Colors[theme ?? "light"].gray}
@@ -113,10 +133,12 @@ export default function Login() {
           ]}
         />
         <PoppinsText style={{ fontSize: 12, marginBottom: 10 }}>
-          Password Below 👇
+          {language === "hi" ? "पासवर्ड नीचे 👇" : "Password Below 👇"}
         </PoppinsText>
         <TextInput
-          placeholder="Enter your password"
+          placeholder={
+            language === "hi" ? "अपना पासवर्ड दर्ज करें" : "Enter your password"
+          }
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -136,6 +158,7 @@ export default function Login() {
             },
           ]}
         />
+
         <Pressable
           onPress={handleSignup}
           disabled={loading}
@@ -155,7 +178,13 @@ export default function Login() {
               color: Colors[theme ?? "light"].background,
             }}
           >
-            {loading ? "Loading..." : "Sign Up"}
+            {loading
+              ? language === "hi"
+                ? "लोड हो रहा है..."
+                : "Loading..."
+              : language === "hi"
+              ? "साइन अप करें"
+              : "Sign Up"}
           </PoppinsText>
         </Pressable>
 
@@ -171,16 +200,40 @@ export default function Login() {
               fontSize: 12,
             }}
           >
-            Already have an account?{" "}
+            {language === "hi"
+              ? "पहले से ही एक खाता है?"
+              : "Already have an account?"}{" "}
             <PoppinsText
               style={{
                 color: Colors[theme ?? "light"].blue,
               }}
             >
-              Login
+              {language === "hi" ? "लॉग इन करें" : "Login"}
             </PoppinsText>
           </PoppinsText>
         </TouchableOpacity>
+
+        {/* Language Button */}
+        <Pressable
+          onPress={() => setLanguage(language === "en" ? "hi" : "en")}
+          style={{
+            position: "absolute",
+            bottom: 20,
+            right: 20,
+            backgroundColor: Colors[theme ?? "light"].text,
+            width: 50,
+            height: 50,
+            borderRadius: 25,
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection: "row",
+          }}
+        >
+          <LanguageIcon
+            size={20}
+            color={Colors[theme ?? "light"].background}
+          />
+        </Pressable>
       </View>
     </View>
   );

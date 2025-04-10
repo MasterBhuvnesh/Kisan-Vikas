@@ -25,6 +25,24 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "@/providers/AuthProvider";
 import { useLanguage } from "@/context/languageContext";
 
+interface User {
+  id: string;
+  fullname: string;
+  fullname_Hindi: string | null;
+  username: string;
+  email: string;
+  profile_pic: string | null;
+}
+
+interface Post {
+  id: string;
+  content: string | null;
+  content_Hindi: string | null;
+  image_url: string | null;
+  created_at: string;
+  user_id: string;
+}
+
 const handleLogout = async () => {
   const { error } = await supabase.auth.signOut();
   if (error) {
@@ -37,12 +55,19 @@ const handleLogout = async () => {
 export default function ProfileScreen() {
   const { language, setLanguage } = useLanguage();
   const theme = useColorScheme();
-  const [userData, setUserData] = useState<any>(null);
-  const [userPosts, setUserPosts] = useState<any[]>([]);
+  const [userData, setUserData] = useState<User | null>(null);
+  const [userPosts, setUserPosts] = useState<Post[]>([]);
   const { session, loading } = useAuth();
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
   const isWeb = Platform.OS === "web";
+
+  // Helper function to get localized name
+  const getLocalizedName = (user: User) => {
+    return language === "hi" && user.fullname_Hindi
+      ? user.fullname_Hindi
+      : user.fullname;
+  };
 
   const fetchUserData = async () => {
     const {
@@ -73,8 +98,6 @@ export default function ProfileScreen() {
       }
 
       setUserData(data);
-
-      // Fetch user posts
       fetchUserPosts(user.id);
     }
   };
@@ -82,7 +105,7 @@ export default function ProfileScreen() {
   const fetchUserPosts = async (userId: string) => {
     const { data, error } = await supabase
       .from("posts")
-      .select("*")
+      .select("*, content_Hindi") // Add content_Hindi to the select
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
@@ -95,9 +118,11 @@ export default function ProfileScreen() {
   };
 
   const handleDeletePost = async (postId: string) => {
-    // Show confirmation dialog
     if (Platform.OS === "android") {
-      ToastAndroid.show("Deleting post...", ToastAndroid.SHORT);
+      ToastAndroid.show(
+        language === "en" ? "Deleting post..." : "पोस्ट हटाई जा रही है...",
+        ToastAndroid.SHORT
+      );
     }
 
     const { error } = await supabase.from("posts").delete().eq("id", postId);
@@ -105,24 +130,36 @@ export default function ProfileScreen() {
     if (error) {
       console.error("Error deleting post:", error);
       if (Platform.OS === "android") {
-        ToastAndroid.show("Error deleting post", ToastAndroid.SHORT);
+        ToastAndroid.show(
+          language === "en" ? "Error deleting post" : "पोस्ट हटाने में त्रुटि",
+          ToastAndroid.SHORT
+        );
       } else {
-        alert("Error deleting post");
+        alert(
+          language === "en" ? "Error deleting post" : "पोस्ट हटाने में त्रुटि"
+        );
       }
       return;
     }
 
-    // Remove post from state
     setUserPosts(userPosts.filter((post) => post.id !== postId));
 
     if (Platform.OS === "android") {
-      ToastAndroid.show("Post deleted successfully", ToastAndroid.SHORT);
+      ToastAndroid.show(
+        language === "en"
+          ? "Post deleted successfully"
+          : "पोस्ट सफलतापूर्वक हटाई गई",
+        ToastAndroid.SHORT
+      );
     } else {
-      alert("Post deleted successfully");
+      alert(
+        language === "en"
+          ? "Post deleted successfully"
+          : "पोस्ट सफलतापूर्वक हटाई गई"
+      );
     }
   };
 
-  // Truncate text to first 4-5 words
   const truncateText = (text: string) => {
     if (!text) return "";
     const words = text.split(" ");
@@ -133,7 +170,6 @@ export default function ProfileScreen() {
   useEffect(() => {
     fetchUserData();
 
-    // Subscribe to realtime changes in the "users" table
     const userSubscription = supabase
       .channel("users")
       .on(
@@ -147,7 +183,6 @@ export default function ProfileScreen() {
       )
       .subscribe();
 
-    // Subscribe to realtime changes in the "posts" table
     const postsSubscription = supabase
       .channel("posts")
       .on(
@@ -162,14 +197,15 @@ export default function ProfileScreen() {
               "user_id" in payload.new &&
               payload.new.user_id === userData?.id
             ) {
-              fetchUserPosts(userData.id);
+              if (userData) {
+                fetchUserPosts(userData.id);
+              }
             }
           }
         }
       )
       .subscribe();
 
-    // Cleanup subscription on component unmount
     return () => {
       userSubscription.unsubscribe();
       postsSubscription.unsubscribe();
@@ -218,7 +254,9 @@ export default function ProfileScreen() {
             headerTintColor: Colors[theme ?? "light"].text,
           }}
         />
-        <MonoText>Loading...</MonoText>
+        <MonoText>
+          {language === "en" ? "Loading..." : "लोड हो रहा है..."}
+        </MonoText>
       </View>
     );
   }
@@ -237,7 +275,7 @@ export default function ProfileScreen() {
       <Stack.Screen
         options={{
           headerShown: true,
-          title: "प्रोफ़ाइल",
+          title: language === "en" ? "Profile" : "प्रोफ़ाइल",
           headerTitleAlign: "left",
           headerTitleStyle: { fontFamily: "PoppinsBold" },
           headerStyle: { backgroundColor: Colors[theme ?? "light"].background },
@@ -359,11 +397,14 @@ export default function ProfileScreen() {
               backgroundColor: "transparent",
             }}
           >
-            <MonoText style={{ fontSize: 12 }}>{userData.fullname}</MonoText>
+            <MonoText style={{ fontSize: 12 }}>
+              {getLocalizedName(userData)}
+            </MonoText>
             <MonoText style={{ fontSize: 12 }}>{userData.email}</MonoText>
           </View>
         </View>
       </View>
+
       {/* Buttons Container */}
       <View
         style={{
@@ -426,11 +467,15 @@ export default function ProfileScreen() {
 
       {/* User Posts List */}
       <View style={styles.postsContainer}>
-        <MonoText style={styles.postsTitle}>मेरे पोस्ट</MonoText>
+        <MonoText style={styles.postsTitle}>
+          {language === "en" ? "My Posts" : "मेरे पोस्ट"}
+        </MonoText>
 
         {userPosts.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <MonoText>अभी तक कोई पोस्ट नहीं</MonoText>
+            <MonoText>
+              {language === "en" ? "No posts yet" : "अभी तक कोई पोस्ट नहीं"}
+            </MonoText>
           </View>
         ) : (
           <FlatList
@@ -458,7 +503,11 @@ export default function ProfileScreen() {
                   {/* Post Text */}
                   <View style={styles.postTextContainer}>
                     <MonoText style={styles.postText}>
-                      {truncateText(item.content)}
+                      {truncateText(
+                        language === "hi" && item.content_Hindi
+                          ? item.content_Hindi
+                          : item.content || ""
+                      )}
                     </MonoText>
                   </View>
 

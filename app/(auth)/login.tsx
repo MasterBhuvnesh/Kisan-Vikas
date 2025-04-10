@@ -11,11 +11,18 @@ import {
 import { router, Stack } from "expo-router";
 import { supabase } from "@/lib/supabase";
 import { View } from "@/components/Themed";
-import { PoppinsBoldText, PoppinsText } from "@/components/StyledText";
+import {
+  MonoText,
+  PoppinsBoldText,
+  PoppinsText,
+} from "@/components/StyledText";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
+import { LanguageIcon } from "react-native-heroicons/outline";
+import { useLanguage } from "@/context/languageContext";
 
 export default function Login() {
+  const { language, setLanguage } = useLanguage();
   const theme = useColorScheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,7 +42,11 @@ export default function Login() {
       if (Platform.OS === "android") {
         ToastAndroid.show(error.message, ToastAndroid.LONG);
       } else {
-        alert("Error: " + error.message);
+        alert(
+          language === "en"
+            ? "Error: " + error.message
+            : "त्रुटि: " + error.message
+        );
       }
     } else {
       router.replace("/(tabs)");
@@ -74,7 +85,9 @@ export default function Login() {
             textAlign: "center",
           }}
         >
-          Welcome Back to Kisan Vikas
+          {language === "en"
+            ? "Welcome Back to Kisan Vikas"
+            : "किसान विकास में आपका स्वागत है"}
         </PoppinsBoldText>
         <PoppinsText
           style={{
@@ -83,14 +96,20 @@ export default function Login() {
             textAlign: "center",
           }}
         >
-          Enter your username and password to continue.
+          {language === "en"
+            ? "Enter your username and password to continue."
+            : "जारी रखने के लिए अपना उपयोगकर्ता नाम और पासवर्ड दर्ज करें।"}
         </PoppinsText>
 
         <PoppinsText style={{ fontSize: 12, marginBottom: 10 }}>
-          Email Address Below 👇
+          {language === "en" ? "Email Address Below 👇" : "ईमेल पता नीचे 👇"}
         </PoppinsText>
         <TextInput
-          placeholder="Enter your email address"
+          placeholder={
+            language === "en"
+              ? "Enter your email address"
+              : "अपना ईमेल पता दर्ज करें"
+          }
           value={email}
           onChangeText={setEmail}
           placeholderTextColor={Colors[theme ?? "light"].gray}
@@ -110,10 +129,12 @@ export default function Login() {
           ]}
         />
         <PoppinsText style={{ fontSize: 12, marginBottom: 10 }}>
-          Password Below 👇
+          {language === "en" ? "Password Below 👇" : "पासवर्ड नीचे 👇"}
         </PoppinsText>
         <TextInput
-          placeholder="Enter your password"
+          placeholder={
+            language === "en" ? "Enter your password" : "अपना पासवर्ड दर्ज करें"
+          }
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -153,7 +174,13 @@ export default function Login() {
               color: Colors[theme ?? "light"].background,
             }}
           >
-            {loading ? "Loading..." : "Login"}
+            {loading
+              ? language === "en"
+                ? "Loading..."
+                : "लोड हो रहा है..."
+              : language === "en"
+              ? "Login"
+              : "लॉगिन करें"}
           </PoppinsText>
         </Pressable>
 
@@ -169,16 +196,37 @@ export default function Login() {
               fontSize: 12,
             }}
           >
-            Don't have an account?{" "}
+            {language === "en" ? "Don't have an account?" : "खाता नहीं है?"}{" "}
             <PoppinsText
               style={{
                 color: Colors[theme ?? "light"].blue,
               }}
             >
-              Signup
+              {language === "en" ? "Signup" : "साइनअप करें"}
             </PoppinsText>
           </PoppinsText>
         </TouchableOpacity>
+        {/* Language Button */}
+        <Pressable
+          onPress={() => setLanguage(language === "en" ? "hi" : "en")}
+          style={{
+            position: "absolute",
+            bottom: 20,
+            right: 20,
+            backgroundColor: Colors[theme ?? "light"].text,
+            width: 50,
+            height: 50,
+            borderRadius: 25,
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection: "row",
+          }}
+        >
+          <LanguageIcon
+            size={20}
+            color={Colors[theme ?? "light"].background}
+          />
+        </Pressable>
       </View>
     </View>
   );
