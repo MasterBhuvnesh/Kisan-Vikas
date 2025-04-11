@@ -27,7 +27,9 @@ export default function LeprosyInfoScreen() {
 
   const _handlePressButtonAsync = async () => {
     let result = await WebBrowser.openBrowserAsync(
-      "https://en.wikipedia.org/wiki/Leprosy"
+      language === "en"
+        ? "https://en.wikipedia.org/wiki/Leprosy"
+        : "https://hi.wikipedia.org/wiki/%E0%A4%95%E0%A5%81%E0%A4%B7%E0%A5%8D%E0%A4%A0%E0%A4%B0%E0%A5%8B%E0%A4%97"
     );
     setResult(result);
   };
@@ -381,7 +383,12 @@ export default function LeprosyInfoScreen() {
                 { backgroundColor: Colors[theme ?? "light"].tint },
               ]}
             >
-              <Text style={styles.ctaButtonText}>
+              <Text
+                style={[
+                  styles.ctaButtonText,
+                  { color: Colors[theme ?? "light"].background },
+                ]}
+              >
                 {language === "en" ? "Learn More" : "अधिक जानें"}
               </Text>
             </TouchableOpacity>
@@ -511,6 +518,5 @@ const styles = StyleSheet.create({
   ctaButtonText: {
     fontFamily: "PoppinsBold",
     fontSize: 14,
-    color: "#FFFFFF",
   },
 });
