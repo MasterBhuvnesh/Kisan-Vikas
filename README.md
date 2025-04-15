@@ -1,7 +1,3 @@
-Based on the provided document, here's a **README.md** file for your project **Kissan Vikas: An App for Health Awareness and Farmer Connection**. This includes the **tech stack**, **features**, **setup instructions**, and a brief **project overview** suitable for a GitHub repository or similar platform.
-
----
-
 # 🌱 Kissan Vikas – Health Awareness & Farmer Connection App
 
 Kissan Vikas is a dual-purpose mobile application developed as part of a Community Engagement Project (CEP) with the goal of empowering rural communities. It bridges the gap in health education—especially around **leprosy awareness**—and fosters **peer-to-peer knowledge exchange among farmers**.
